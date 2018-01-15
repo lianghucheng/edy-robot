@@ -3,7 +3,6 @@ package main
 import (
 	"czddz-robot/robot"
 	llog "github.com/name5566/leaf/log"
-	"hnzzmj-ai/ai"
 	"log"
 	"os"
 	"os/signal"
@@ -24,6 +23,6 @@ func main() {
 	select {
 	case sig := <-c:
 		llog.Release("closing down (signal: %v)", sig)
-		ai.Destroy()
+		robot.Destroy()
 	}
 }

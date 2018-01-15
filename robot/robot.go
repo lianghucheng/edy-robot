@@ -63,6 +63,12 @@ func Init() {
 	clients = append(clients, client)
 }
 
+func Destroy() {
+	for _, client := range clients {
+		client.Close()
+	}
+}
+
 type Agent struct {
 	conn       *net.MyConn
 	playerData *PlayerData
