@@ -35,9 +35,9 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 			a.playerData.RoomType = int(res["RoomType"].(float64))
 			switch a.playerData.RoomType {
 			case roomBaseScoreMatching:
-				log.Debug("accID: %v 进入底分匹配房", a.playerData.AccountID)
+				log.Debug("accID: %v 进入底分匹配房 底分: %v", a.playerData.AccountID, a.playerData.BaseScore)
 			case roomRedPacketMatching:
-				log.Debug("accID: %v 进入红包匹配房", a.playerData.AccountID)
+				log.Debug("accID: %v 进入红包匹配房 红包类型: %v", a.playerData.AccountID, a.playerData.RedPacketType)
 
 			}
 			a.getAllPlayer()
@@ -49,8 +49,10 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 		}
 	} else if res, ok := jsonMap["S2C_UpdatePokerHands"].(map[string]interface{}); ok {
 		if a.isMe(int(res["Position"].(float64))) {
-			a.playerData.hands = To1DimensionalArray(res["Hands"].([]interface{}))
-			log.Debug("hands: %v", poker.ToCardsString(a.playerData.hands))
+			if res["Hands"] != nil {
+				a.playerData.hands = To1DimensionalArray(res["Hands"].([]interface{}))
+				log.Debug("hands: %v", poker.ToCardsString(a.playerData.hands))
+			}
 		}
 	} else if res, ok := jsonMap["S2C_ActionLandlordBid"].(map[string]interface{}); ok {
 		if a.isMe(int(res["Position"].(float64))) {
