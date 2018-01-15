@@ -113,7 +113,3 @@ func (a *Agent) Run() {
 func (a *Agent) OnClose() {
 
 }
-
-func Delay(f func()) {
-	time.AfterFunc(time.Duration((rand.Intn(2))+3)*time.Second, f)
-}

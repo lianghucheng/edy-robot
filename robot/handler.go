@@ -3,6 +3,8 @@ package robot
 import (
 	"czddz-robot/poker"
 	"github.com/name5566/leaf/log"
+	"math/rand"
+	"time"
 )
 
 func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
@@ -78,7 +80,9 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 			})
 		}
 	} else if _, ok := jsonMap["S2C_LandlordRoundResult"].(map[string]interface{}); ok {
-		a.enterRandRoom()
+		Delay(func() {
+			a.enterRandRoom()
+		})
 	}
 }
 
@@ -88,4 +92,12 @@ func To1DimensionalArray(array []interface{}) []int {
 		newArray = append(newArray, int(v.(float64)))
 	}
 	return newArray
+}
+
+func Delay(cb func()) {
+	time.AfterFunc(time.Duration((rand.Intn(2))+3)*time.Second, func() {
+		if cb != nil {
+			cb()
+		}
+	})
 }
