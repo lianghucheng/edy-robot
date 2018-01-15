@@ -3,33 +3,24 @@ package robot
 import (
 	"czddz-robot/poker"
 	"github.com/name5566/leaf/log"
-	"math/rand"
-)
-
-var (
-	roomType      int
-	baseScore     int
-	redPacketType int
 )
 
 func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 	if _, ok := jsonMap["S2C_Heartbeat"]; ok {
-		log.Debug("jsonMap: %v", jsonMap)
 		a.sendHeartbeat()
 	} else if res, ok := jsonMap["S2C_Login"].(map[string]interface{}); ok {
+		a.playerData.AccountID = int(res["AccountID"].(float64))
+		log.Debug("accID: %v 登录", a.playerData.AccountID)
 		a.playerData.Role = int(res["Role"].(float64))
 		if a.playerData.Role == 1 {
 			a.setUserRobot()
+			return
 		}
-
-		a.playerData.AccountID = int(res["AccountID"].(float64))
-		log.Debug("accountID: %v 登录", a.playerData.AccountID)
 		if res["AnotherRoom"].(bool) {
 			a.enterRoom()
 		} else {
-			getRandRoom()
 			if *Play {
-				a.startMatching(roomType, baseScore, redPacketType)
+				a.enterRandRoom()
 			}
 		}
 	} else if res, ok := jsonMap["S2C_CreateRoom"].(map[string]interface{}); ok {
@@ -43,9 +34,9 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 			a.playerData.Position = int(res["Position"].(float64))
 			a.playerData.RoomType = int(res["RoomType"].(float64))
 			switch a.playerData.RoomType {
-			case 1:
+			case roomBaseScoreMatching:
 				log.Debug("accID: %v 进入底分匹配房", a.playerData.AccountID)
-			case 4:
+			case roomRedPacketMatching:
 				log.Debug("accID: %v 进入红包匹配房", a.playerData.AccountID)
 
 			}
@@ -85,34 +76,14 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 			})
 		}
 	} else if _, ok := jsonMap["S2C_LandlordRoundResult"].(map[string]interface{}); ok {
-		getRandRoom()
-		if *Play {
-			a.startMatching(roomType, baseScore, redPacketType)
-		}
+		a.enterRandRoom()
 	}
 }
 
 func To1DimensionalArray(array []interface{}) []int {
-	newArray := []int{}
+	var newArray []int
 	for _, v := range array {
 		newArray = append(newArray, int(v.(float64)))
 	}
 	return newArray
-}
-
-func getRandRoom() {
-	room := []int{1, 4}
-	base := []int{100, 5000, 10000}
-	redPacket := []int{1, 10}
-	randRoom := rand.Intn(2)
-	randBase := rand.Intn(3)
-	randRed := rand.Intn(2)
-	roomType = room[randRoom]
-	if roomType == 1 {
-		baseScore = base[randBase]
-		redPacketType = 0
-	} else if roomType == 4 {
-		baseScore = 0
-		redPacketType = redPacket[randRed]
-	}
 }

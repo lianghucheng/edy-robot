@@ -38,7 +38,7 @@ func (client *Client) init() {
 	client.Lock()
 	defer client.Unlock()
 
-	if client.ConnNum < 0 {
+	if client.ConnNum <= 0 {
 		client.ConnNum = 1
 		log.Release("invalid ConnNum, reset to %v", client.ConnNum)
 	}
@@ -89,6 +89,7 @@ reconnect:
 		return
 	}
 	conn.SetReadLimit(int64(client.MaxMsgLen))
+
 	client.Lock()
 	if client.closeFlag {
 		client.Unlock()
@@ -97,15 +98,16 @@ reconnect:
 	}
 	client.conns[conn] = struct{}{}
 	client.Unlock()
+
 	myConn := newMyConn(conn, client.PendingWriteNum, client.MaxMsgLen)
 	agent := client.NewAgent(myConn)
 	agent.Run()
 
-	// clean up
+	// cleanup
 	myConn.Close()
+	client.Lock()
 	delete(client.conns, conn)
-	// todo
-	//client.Unlock()
+	client.Unlock()
 	agent.OnClose()
 
 	if client.AutoReconnect {

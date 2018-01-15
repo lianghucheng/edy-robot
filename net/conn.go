@@ -23,7 +23,6 @@ func newMyConn(conn *websocket.Conn, pendingWriteNum int, maxMsgLen uint32) *MyC
 	wsConn.conn = conn
 	wsConn.writeChan = make(chan []byte, pendingWriteNum)
 	wsConn.maxMsgLen = maxMsgLen
-
 	go func() {
 		for b := range wsConn.writeChan {
 			if b == nil {
@@ -62,10 +61,10 @@ func (wsConn *MyConn) Destroy() {
 func (wsConn *MyConn) Close() {
 	wsConn.Lock()
 	defer wsConn.Unlock()
-
-	if wsConn.closeFlag == true {
+	if wsConn.closeFlag {
 		return
 	}
+
 	wsConn.doWrite(nil)
 	wsConn.closeFlag = true
 }
@@ -93,10 +92,10 @@ func (wsConn *MyConn) ReadMsg() ([]byte, error) {
 	return b, err
 }
 
+// args must not be modified by the others goroutines
 func (wsConn *MyConn) WriteMsg(args ...[]byte) error {
 	wsConn.Lock()
 	defer wsConn.Unlock()
-
 	if wsConn.closeFlag {
 		return nil
 	}
@@ -111,17 +110,17 @@ func (wsConn *MyConn) WriteMsg(args ...[]byte) error {
 	} else if msgLen < 1 {
 		return errors.New("message too short")
 	}
-
+	// don't copy
 	if len(args) == 1 {
 		wsConn.doWrite(args[0])
 		return nil
 	}
-
+	// merge the args
 	msg := make([]byte, msgLen)
 	l := 0
 	for i := 0; i < len(args); i++ {
 		copy(msg[l:], args[i])
-		i += len(args[i])
+		l += len(args[i])
 	}
 	wsConn.doWrite(msg)
 	return nil

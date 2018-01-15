@@ -1,31 +1,29 @@
 package common
 
 import (
-	math "math"
 	"math/rand"
-	"strconv"
-	"strings"
 	"time"
-)
-
-var (
-	Chars = []string{
-		"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c",
-		"d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
-		"q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C",
-		"D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
-		"Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "~", "!", "@",
-		"#", "$", "%", "^", "&", "*", "(", ")", "-", "_", "=", "+", "[",
-		"]", "{", "}", "|", "<", ">", "?", "/", ".", ",", ";", ":"}
-
-	NumberChars = []string{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
 )
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func Shuffle(a []string) []string {
+func Shuffle(a []int) []int {
+	n := len(a)
+	if n == 0 {
+		return a
+	}
+	b := make([]int, n)
+
+	m := rand.Perm(n)
+	for i := 0; i < n; i++ {
+		b[i] = a[m[i]]
+	}
+	return b
+}
+
+func Shuffle2(a []string) []string {
 	n := len(a)
 	if n == 0 {
 		return a
@@ -37,49 +35,6 @@ func Shuffle(a []string) []string {
 		b[i] = a[m[i]]
 	}
 	return b
-}
-
-func SplitHeadimgurl(headimgurl string) []string {
-	var imgurl []string
-	url := headimgurl[:41]
-	number := headimgurl[41:42]
-	jpg := headimgurl[42:]
-	for i := 0; i < 100; i++ {
-		number = strconv.Itoa(i)
-		imgurl = append(imgurl, url+number+jpg)
-	}
-	return imgurl
-}
-
-func Shuffle2(a []string) []string {
-	i := len(a) - 1
-	for i > 0 {
-		j := rand.Intn(i + 1)
-		a[i], a[j] = a[j], a[i]
-		i--
-	}
-	return a
-}
-
-func GetToken(n int) string {
-	if n < 1 {
-		return ""
-	}
-	var tokens []string
-	for i := 0; i < n; i++ {
-		tokens = append(tokens, Chars[rand.Intn(90)]) // 90 是 Chars 的长度
-	}
-	return strings.Join(tokens, "")
-}
-
-// id 的第一位从 1 开始
-func GetID(n int) int {
-	if n < 1 {
-		return -1
-	}
-	min := math.Pow10(n - 1)
-	id := int(min) + rand.Intn(int(math.Pow10(n)-min))
-	return id
 }
 
 func Index(a []int, sep int) int {
@@ -108,7 +63,7 @@ func RemoveOnce(a []int, sep int) []int {
 	if i == -1 {
 		return a
 	}
-	b := []int{}
+	var b []int
 	if i == 0 {
 		b = append(b, a[1:]...)
 	} else if i == len(a)-1 {
@@ -132,7 +87,7 @@ func ReplaceAll(a []int, old, new int) []int {
 		return a
 	}
 	if InArray(a, old) {
-		b := []int{}
+		var b []int
 		for _, v := range a {
 			if old == v {
 				b = append(b, new)

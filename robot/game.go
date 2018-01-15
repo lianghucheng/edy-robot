@@ -20,7 +20,7 @@ func (a *Agent) wechatLogin() {
 	a.writeMsg(&msg.C2S_WeChatLogin{
 		Unionid:    unionids[count],
 		NickName:   nicknames[count],
-		Headimgurl: headimgurl[count],
+		Headimgurl: headimgurls[count],
 	})
 	count++
 }
@@ -31,6 +31,16 @@ func (a *Agent) setUserRobot() {
 
 func (a *Agent) enterRoom() {
 	a.writeMsg(&msg.C2S_EnterRoom{})
+}
+
+func (a *Agent) enterRandRoom() {
+	a.playerData.getRandRoom()
+	switch a.playerData.RoomType {
+	case roomBaseScoreMatching:
+		a.startMatching(roomBaseScoreMatching, a.playerData.BaseScore, 0)
+	case roomRedPacketMatching:
+		a.startMatching(roomRedPacketMatching, 0, a.playerData.RedPacketType)
+	}
 }
 
 func (a *Agent) startMatching(roomType int, baseScore int, redPacketType int) {

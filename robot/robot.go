@@ -17,32 +17,33 @@ import (
 
 var (
 	//addr     = "ws://czddz.shenzhouxing.com:3658"
-	addr       = "ws://192.168.1.240:3658"
-	imgurl     = "https://www.shenzhouxing.com/czddz/robot/0.jpg"
-	clients    []*net.Client
-	unionids   []string
-	nicknames  []string
-	headimgurl []string
-	count      = 0
-	mu         sync.Mutex
-	Play       *bool
+	addr        = "ws://192.168.1.141:3658"
+	clients     []*net.Client
+	unionids    []string
+	nicknames   []string
+	headimgurls []string
+	count       = 0
+	mu          sync.Mutex
+	Play        *bool
+
+	robotNumber = 100 // 机器人数量
 )
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
-	name, err := conf.ReadName("D:/robot_nickname.txt")
-	name = common.Shuffle(name)
+	names, err := conf.ReadName("D:/robot_nickname.txt")
+	names = common.Shuffle2(names)
 	if err == nil {
-		nicknames = append(nicknames, name[:100]...)
+		nicknames = append(nicknames, names[:robotNumber]...)
 	} else {
 		log.Debug("read file error: %v", err)
 	}
-	headimgurl = common.SplitHeadimgurl(imgurl)
+	temp := rand.Perm(robotNumber)
 	log.Debug("nicknames: %v", nicknames)
-	for i := 0; i < 100; i++ {
+	for i := 0; i < robotNumber; i++ {
 		unionids = append(unionids, strconv.Itoa(i))
+		headimgurls = append(headimgurls, "https://www.shenzhouxing.com/czddz/robot/"+strconv.Itoa(temp[i])+".jpg")
 	}
-
 }
 
 func Init() {
@@ -51,7 +52,7 @@ func Init() {
 	log.Debug("Play: %v", *Play)
 	client := new(net.Client)
 	client.Addr = addr
-	client.ConnNum = 100
+	client.ConnNum = robotNumber
 	client.ConnectInterval = 3 * time.Second
 	client.HandshakeTimeout = 10 * time.Second
 	client.PendingWriteNum = 100
