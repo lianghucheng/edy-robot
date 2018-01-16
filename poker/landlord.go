@@ -124,16 +124,16 @@ func CompareLandlordHands(discards []int, hands []int) bool {
 	}
 	analyzer := new(LandlordAnalyzer)
 	analyzer.Analyze(hands)
-	if analyzer.hasKingBomb {
+	if analyzer.HasKingBomb {
 		return false
 	}
 	if discardsType == Bomb {
-		if analyzer.hasBomb && CardValue(discards[0]) < CardValue(analyzer.bombs[0][0]) {
+		if analyzer.HasBomb && CardValue(discards[0]) < CardValue(analyzer.bombs[0][0]) {
 			return false
 		}
 		return true
 	}
-	if analyzer.hasBomb {
+	if analyzer.HasBomb {
 		return false
 	}
 	discardsLen, handsLen := len(discards), len(hands)
@@ -449,13 +449,13 @@ func GetBombs(cards []int) [][]int {
 	analyzer.Analyze(cards)
 
 	bombs := [][]int{}
-	if analyzer.hasBomb {
+	if analyzer.HasBomb {
 		bombsLen := len(analyzer.bombs)
 		for i := bombsLen - 1; i > -1; i-- {
 			bombs = append(bombs, analyzer.bombs[i])
 		}
 	}
-	if analyzer.hasKingBomb {
+	if analyzer.HasKingBomb {
 		bombs = append(bombs, []int{53, 52})
 	}
 	return bombs
@@ -816,7 +816,7 @@ func GetGreaterThanBomb(cardValue int, cards []int) [][]int {
 	analyzer.Analyze(cards)
 
 	melds := [][]int{}
-	if analyzer.hasBomb {
+	if analyzer.HasBomb {
 		bombsLen := len(analyzer.bombs)
 		for i := bombsLen - 1; i > -1; i-- {
 			cardValue2 := CardValue(analyzer.bombs[i][0])
@@ -825,7 +825,7 @@ func GetGreaterThanBomb(cardValue int, cards []int) [][]int {
 			}
 		}
 	}
-	if analyzer.hasKingBomb {
+	if analyzer.HasKingBomb {
 		melds = append(melds, []int{53, 52})
 	}
 	return melds

@@ -10,8 +10,8 @@ type LandlordAnalyzer struct {
 	cardValueMarker map[int]int // 记牌器(Key 牌值、Value 牌的数量)
 	cards           []int
 
-	hasKingBomb      bool
-	hasBomb          bool
+	HasKingBomb      bool
+	HasBomb          bool
 	hasTrio          bool
 	hasPair          bool
 	hasAirplaneChain bool
@@ -33,8 +33,8 @@ func (analyzer *LandlordAnalyzer) init() {
 	analyzer.cardValueMarker = make(map[int]int)
 	analyzer.cards = []int{}
 
-	analyzer.hasKingBomb = false
-	analyzer.hasBomb = false
+	analyzer.HasKingBomb = false
+	analyzer.HasBomb = false
 	analyzer.hasTrio = false
 	analyzer.hasPair = false
 	analyzer.hasAirplaneChain = false
@@ -50,13 +50,6 @@ func (analyzer *LandlordAnalyzer) init() {
 	analyzer.soloChains = [][]int{}
 
 	analyzer.unrelated = []int{}
-}
-
-func (analyzer *LandlordAnalyzer) Bomb() bool {
-	if analyzer.hasKingBomb && analyzer.hasBomb {
-		return true
-	}
-	return false
 }
 
 func (analyzer *LandlordAnalyzer) setCardValueMarker() {
@@ -89,10 +82,10 @@ func (analyzer *LandlordAnalyzer) Analyze(cards []int) {
 
 func (analyzer *LandlordAnalyzer) analyzeKingBomb() {
 	if len(analyzer.cards) > 1 && analyzer.cards[0] == 53 && analyzer.cards[1] == 52 {
-		analyzer.hasKingBomb = true
+		analyzer.HasKingBomb = true
 		analyzer.kingBomb = []int{53, 52}
 	} else {
-		analyzer.hasKingBomb = false
+		analyzer.HasKingBomb = false
 	}
 }
 
@@ -104,9 +97,9 @@ func (analyzer *LandlordAnalyzer) analyzeBomb() {
 		}
 	}
 	if len(analyzer.bombs) == 0 {
-		analyzer.hasBomb = false
+		analyzer.HasBomb = false
 	} else {
-		analyzer.hasBomb = true
+		analyzer.HasBomb = true
 	}
 }
 
@@ -210,7 +203,7 @@ func (analyzer *LandlordAnalyzer) analyzeUnrelated() {
 
 func (analyzer *LandlordAnalyzer) Print() {
 	melds := [][]int{}
-	if analyzer.hasKingBomb {
+	if analyzer.HasKingBomb {
 		melds = append(melds, analyzer.kingBomb)
 	}
 	melds = append(melds, analyzer.bombs...)
@@ -252,12 +245,12 @@ func (analyzer *LandlordAnalyzer) analyze2(cards []int) {
 	analyzer.cards = append([]int{}, cards...)
 	analyzer.setCardValueMarker()
 	//analyzer.analyzeKingBomb()
-	//if analyzer.hasKingBomb {
+	//if analyzer.HasKingBomb {
 	//	analyzer.cards = common.Remove(analyzer.cards, []int{53, 52})
 	//	analyzer.setCardValueMarker()
 	//}
 	//analyzer.analyzeBomb()
-	//if analyzer.hasBomb {
+	//if analyzer.HasBomb {
 	//	for _, bomb := range analyzer.bombs {
 	//		analyzer.cards = common.Remove(analyzer.cards, bomb)
 	//	}
@@ -296,12 +289,12 @@ func (analyzer *LandlordAnalyzer) GetMinDiscards(cards []int) []int {
 	analyzer.setCardValueMarker()
 
 	analyzer.analyzeKingBomb()
-	if analyzer.hasKingBomb {
+	if analyzer.HasKingBomb {
 		analyzer.cards = common.Remove(analyzer.cards, analyzer.kingBomb)
 		analyzer.setCardValueMarker()
 	}
 	analyzer.analyzeBomb()
-	if analyzer.hasBomb {
+	if analyzer.HasBomb {
 		for _, bomb := range analyzer.bombs {
 			analyzer.cards = common.Remove(analyzer.cards, bomb)
 		}

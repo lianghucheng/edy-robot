@@ -4,6 +4,7 @@ import (
 	"czddz-robot/common"
 	"czddz-robot/conf"
 	"czddz-robot/net"
+	"czddz-robot/poker"
 	"encoding/json"
 	"flag"
 	"github.com/gorilla/websocket"
@@ -26,7 +27,7 @@ var (
 	mu          sync.Mutex
 	Play        *bool
 
-	robotNumber = 100 // 机器人数量
+	robotNumber = 3 // 机器人数量
 )
 
 func init() {
@@ -83,6 +84,7 @@ func newAgent(conn *net.MyConn) network.Agent {
 
 func newPlayerData() *PlayerData {
 	playerData := new(PlayerData)
+	playerData.analyzer = new(poker.LandlordAnalyzer)
 	return playerData
 }
 
