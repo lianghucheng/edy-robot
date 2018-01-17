@@ -2,7 +2,6 @@ package robot
 
 import (
 	"czddz-robot/common"
-	"czddz-robot/conf"
 	"czddz-robot/net"
 	"czddz-robot/poker"
 	"encoding/json"
@@ -32,7 +31,8 @@ var (
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
-	names, err := conf.ReadName("D:/robot_nickname.txt")
+
+	names, err := common.ReadFile("D:/robot_nickname.txt")
 	names = common.Shuffle2(names)
 	if err == nil {
 		nicknames = append(nicknames, names[:robotNumber]...)
