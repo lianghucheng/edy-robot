@@ -26,7 +26,7 @@ var (
 	mu          sync.Mutex
 	Play        *bool
 
-	robotNumber = 3 // 机器人数量
+	robotNumber = 100 // 机器人数量
 )
 
 func init() {
@@ -43,7 +43,7 @@ func init() {
 	log.Debug("nicknames: %v", nicknames)
 	for i := 0; i < robotNumber; i++ {
 		unionids = append(unionids, strconv.Itoa(i))
-		headimgurls = append(headimgurls, "https://www.shenzhouxing.com/czddz/robot/"+strconv.Itoa(temp[i])+".jpg")
+		headimgurls = append(headimgurls, "https://www.shenzhouxing.com/robot/"+strconv.Itoa(temp[i])+".jpg")
 	}
 }
 

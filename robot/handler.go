@@ -37,13 +37,14 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 		case 0:
 			a.playerData.Position = int(res["Position"].(float64))
 			a.playerData.RoomType = int(res["RoomType"].(float64))
+			roomNumber := res["RoomNumber"].(string)
 			switch a.playerData.RoomType {
 			case roomBaseScoreMatching:
 				a.playerData.BaseScore = int(res["BaseScore"].(float64))
-				log.Debug("accID: %v 进入底分匹配房 底分: %v", a.playerData.AccountID, a.playerData.BaseScore)
+				log.Debug("accID: %v 进入房间:%v 底分: %v", a.playerData.AccountID, roomNumber, a.playerData.BaseScore)
 			case roomRedPacketMatching:
 				a.playerData.RedPacketType = int(res["RedPacketType"].(float64))
-				log.Debug("accID: %v 进入红包匹配房 红包类型: %v", a.playerData.AccountID, a.playerData.RedPacketType)
+				log.Debug("accID: %v 进入房间:%v 红包: %v", a.playerData.AccountID, roomNumber, a.playerData.RedPacketType)
 			}
 			a.getAllPlayer()
 		case 6:
