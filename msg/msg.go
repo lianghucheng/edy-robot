@@ -9,10 +9,7 @@ type C2S_WeChatLogin struct {
 	Unionid    string
 }
 
-type C2S_SetUserRobot struct {
-}
-
-type C2S_SetRobotIP struct {
+type C2S_SetRobotData struct {
 	LoginIP string
 }
 

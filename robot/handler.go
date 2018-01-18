@@ -15,8 +15,7 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 		log.Debug("accID: %v 登录", a.playerData.AccountID)
 		a.playerData.Role = int(res["Role"].(float64))
 		if a.playerData.Role == 1 {
-			a.setRobotIP()
-			a.setUserRobot()
+			a.setRobotData()
 			return
 		}
 		if res["AnotherRoom"].(bool) {

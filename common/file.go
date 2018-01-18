@@ -29,7 +29,6 @@ func ReadFile(fileName string) ([]string, error) {
 			}
 			return names, err
 		}
-
 	}
 	return names, nil
 }

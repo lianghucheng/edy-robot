@@ -26,13 +26,9 @@ func (a *Agent) wechatLogin() {
 	count++
 }
 
-func (a *Agent) setUserRobot() {
-	a.writeMsg(&msg.C2S_SetUserRobot{})
-}
-
-func (a *Agent) setRobotIP() {
+func (a *Agent) setRobotData() {
 	index, _ := strconv.Atoi(a.playerData.Unionid)
-	a.writeMsg(&msg.C2S_SetRobotIP{
+	a.writeMsg(&msg.C2S_SetRobotData{
 		LoginIP: loginIPs[index],
 	})
 }
