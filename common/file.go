@@ -19,7 +19,10 @@ func ReadFile(fileName string) ([]string, error) {
 	for {
 		line, err := buf.ReadString('\n')
 		if err == nil {
-			names = append(names, strings.TrimSpace(line))
+			name := strings.TrimSpace(line)
+			if name != "" {
+				names = append(names, name)
+			}
 		} else {
 			if err == io.EOF {
 				return names, nil

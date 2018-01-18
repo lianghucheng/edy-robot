@@ -2,6 +2,7 @@ package robot
 
 import (
 	"czddz-robot/msg"
+	"strconv"
 )
 
 func (a *Agent) isMe(pos int) bool {
@@ -27,6 +28,13 @@ func (a *Agent) wechatLogin() {
 
 func (a *Agent) setUserRobot() {
 	a.writeMsg(&msg.C2S_SetUserRobot{})
+}
+
+func (a *Agent) setRobotIP() {
+	index, _ := strconv.Atoi(a.playerData.Unionid)
+	a.writeMsg(&msg.C2S_SetRobotIP{
+		LoginIP: loginIPs[index],
+	})
 }
 
 func (a *Agent) enterRoom() {

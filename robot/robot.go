@@ -16,12 +16,13 @@ import (
 )
 
 var (
-	//addr     = "ws://czddz.shenzhouxing.com:3658"
-	addr        = "ws://192.168.1.141:3658"
+	addr = "ws://czddz.shenzhouxing.com:3658"
+	//addr        = "ws://192.168.1.240:3658"
 	clients     []*net.Client
 	unionids    []string
 	nicknames   []string
 	headimgurls []string
+	loginIPs    []string
 	count       = 0
 	mu          sync.Mutex
 	Play        *bool
@@ -32,14 +33,21 @@ var (
 func init() {
 	rand.Seed(time.Now().UnixNano())
 
-	names, err := common.ReadFile("D:/robot_nickname.txt")
+	names, ips := make([]string, 0), make([]string, 0)
+	var err error
+	names, err = common.ReadFile("D:/robot_nickname.txt")
 	names = common.Shuffle2(names)
+
+	ips, _ = common.ReadFile("D:/robot_ip.txt")
+	ips = common.Shuffle2(ips)
 	if err == nil {
 		nicknames = append(nicknames, names[:robotNumber]...)
+		loginIPs = append(loginIPs, ips[:100]...)
 	} else {
 		log.Debug("read file error: %v", err)
 	}
 	temp := rand.Perm(robotNumber)
+	log.Debug("loginIP: %v", loginIPs)
 	log.Debug("nicknames: %v", nicknames)
 	for i := 0; i < robotNumber; i++ {
 		unionids = append(unionids, strconv.Itoa(i))

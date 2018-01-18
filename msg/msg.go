@@ -12,6 +12,10 @@ type C2S_WeChatLogin struct {
 type C2S_SetUserRobot struct {
 }
 
+type C2S_SetRobotIP struct {
+	LoginIP string
+}
+
 type C2S_EnterRoom struct {
 }
 
