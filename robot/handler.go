@@ -108,7 +108,7 @@ func To1DimensionalArray(array []interface{}) []int {
 }
 
 func Delay(cb func()) {
-	time.AfterFunc(time.Duration((rand.Intn(2))+3)*time.Second, func() {
+	time.AfterFunc(time.Duration(rand.Intn(2)+3)*time.Second, func() {
 		if cb != nil {
 			cb()
 		}

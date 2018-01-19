@@ -12,9 +12,11 @@ const (
 )
 
 var (
-	roomType      = []int{roomBaseScoreMatching, roomRedPacketMatching}
-	baseScore     = []int{100, 5000, 10000}
-	redPacketType = []int{1, 10}
+	roomType = []int{roomBaseScoreMatching, roomRedPacketMatching}
+	// baseScore     = []int{100, 5000, 10000}
+	baseScore = []int{100}
+	// redPacketType = []int{1, 10}
+	redPacketType = []int{1}
 )
 
 type PlayerData struct {
