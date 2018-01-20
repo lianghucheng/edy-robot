@@ -86,18 +86,14 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 				a.grab(false)
 			})
 		}
-	} else if res, ok := jsonMap["S2C_ActionLandlordDouble"].(map[string]interface{}); ok {
-		if a.isMe(int(res["Position"].(float64))) {
-			Delay(func() {
-				a.double(false)
-			})
-		}
-	} else if res, ok := jsonMap["S2C_ActionLandlordShowCards"].(map[string]interface{}); ok {
-		if a.isMe(int(res["Position"].(float64))) {
-			Delay(func() {
-				a.showCards(false)
-			})
-		}
+	} else if _, ok := jsonMap["S2C_ActionLandlordDouble"].(map[string]interface{}); ok {
+		Delay(func() {
+			a.double(false)
+		})
+	} else if _, ok := jsonMap["S2C_ActionLandlordShowCards"].(map[string]interface{}); ok {
+		Delay(func() {
+			a.showCards(false)
+		})
 	} else if res, ok := jsonMap["S2C_ActionLandlordDiscard"].(map[string]interface{}); ok {
 		if a.isMe(int(res["Position"].(float64))) {
 			Delay(func() {
