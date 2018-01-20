@@ -65,15 +65,27 @@ func (a *Agent) prepare() {
 	})
 }
 
-func (a *Agent) bid() {
+func (a *Agent) bid(bid bool) {
 	a.writeMsg(&msg.C2S_LandlordBid{
-		Bid: true,
+		Bid: bid,
 	})
 }
 
 func (a *Agent) grab(grab bool) {
 	a.writeMsg(&msg.C2S_LandlordGrab{
 		Grab: grab,
+	})
+}
+
+func (a *Agent) double(double bool) {
+	a.writeMsg(&msg.C2S_LandlordDouble{
+		Double: double,
+	})
+}
+
+func (a *Agent) showCards(showCards bool) {
+	a.writeMsg(&msg.C2S_LandlordShowCards{
+		ShowCards: showCards,
 	})
 }
 

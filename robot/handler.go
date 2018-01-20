@@ -72,18 +72,30 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 	} else if res, ok := jsonMap["S2C_ActionLandlordBid"].(map[string]interface{}); ok {
 		if a.isMe(int(res["Position"].(float64))) {
 			Delay(func() {
-				a.bid()
+				a.playerData.analyzer.Analyze(a.playerData.hands)
+				if a.playerData.analyzer.HasKingBomb || a.playerData.analyzer.HasBomb {
+					a.bid(true)
+				} else {
+					a.bid(false)
+				}
 			})
 		}
 	} else if res, ok := jsonMap["S2C_ActionLandlordGrab"].(map[string]interface{}); ok {
 		if a.isMe(int(res["Position"].(float64))) {
 			Delay(func() {
-				a.playerData.analyzer.Analyze(a.playerData.hands)
-				if a.playerData.analyzer.HasKingBomb || a.playerData.analyzer.HasBomb {
-					a.grab(true)
-				} else {
-					a.grab(false)
-				}
+				a.grab(false)
+			})
+		}
+	} else if res, ok := jsonMap["S2C_ActionLandlordDouble"].(map[string]interface{}); ok {
+		if a.isMe(int(res["Position"].(float64))) {
+			Delay(func() {
+				a.double(false)
+			})
+		}
+	} else if res, ok := jsonMap["S2C_ActionLandlordShowCards"].(map[string]interface{}); ok {
+		if a.isMe(int(res["Position"].(float64))) {
+			Delay(func() {
+				a.showCards(false)
 			})
 		}
 	} else if res, ok := jsonMap["S2C_ActionLandlordDiscard"].(map[string]interface{}); ok {
