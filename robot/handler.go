@@ -56,7 +56,7 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 					a.enterRandRoom()
 				})
 			} else {
-				log.Debug("accID: %v 携带的筹码已小于1000")
+				log.Debug("accID: %v 携带的筹码已小于1000", a.playerData.AccountID)
 			}
 		case 7: // S2C_EnterRoom_NotRightNow
 			Delay(func() {
