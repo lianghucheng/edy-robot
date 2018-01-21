@@ -76,10 +76,11 @@ func RemoveOnce(a []int, sep int) []int {
 }
 
 func Remove(a []int, sub []int) []int {
+	b := append([]int{}, a...)
 	for _, v := range sub {
-		a = RemoveOnce(a, v)
+		b = RemoveOnce(b, v)
 	}
-	return a
+	return b
 }
 
 func ReplaceAll(a []int, old, new int) []int {
