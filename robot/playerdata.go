@@ -11,6 +11,10 @@ const (
 	roomRedPacketMatching = 4 // 红包匹配
 )
 
+const (
+	roleRobot = -2 // 机器人
+)
+
 var (
 	roomType = []int{roomBaseScoreMatching, roomRedPacketMatching}
 	// baseScore     = []int{100, 5000, 10000}

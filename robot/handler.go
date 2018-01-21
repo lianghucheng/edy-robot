@@ -12,9 +12,9 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 		a.sendHeartbeat()
 	} else if res, ok := jsonMap["S2C_Login"].(map[string]interface{}); ok {
 		a.playerData.AccountID = int(res["AccountID"].(float64))
-		log.Debug("accID: %v 登录", a.playerData.AccountID)
 		a.playerData.Role = int(res["Role"].(float64))
-		if a.playerData.Role != -2 {
+		if a.playerData.Role != roleRobot {
+			log.Debug("accID: %v 登录初始化", a.playerData.AccountID)
 			a.setRobotData()
 			return
 		}
@@ -23,13 +23,15 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 		} else {
 			if *Play {
 				a.enterRandRoom()
+			} else {
+				log.Debug("accID: %v 登录", a.playerData.AccountID)
 			}
 		}
 	} else if res, ok := jsonMap["S2C_CreateRoom"].(map[string]interface{}); ok {
 		err := res["Error"].(float64)
 		switch err {
-		case 4:
-			log.Debug("accID: %v 需要%v张房卡才能游戏", a.playerData.AccountID, res["RoomCards"].(float64))
+		case 6:
+			log.Debug("accID: %v 需要%v筹码才能游戏", a.playerData.AccountID, res["MinChips"].(float64))
 		}
 	} else if res, ok := jsonMap["S2C_EnterRoom"].(map[string]interface{}); ok {
 		err := res["Error"].(float64)
@@ -47,20 +49,39 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 				log.Debug("accID: %v 进入房间:%v 红包: %v", a.playerData.AccountID, roomNumber, a.playerData.RedPacketType)
 			}
 			a.getAllPlayer()
-		case 6:
-			log.Debug("accID: %v 需要%v筹码才能进入", a.playerData.AccountID, res["MinChips"].(float64))
-			Delay(func() {
-				a.enterRandRoom()
-			})
-		case 7:
-			log.Debug("accID: %v 比赛暂未开始", a.playerData.AccountID)
+		case 6: // S2C_EnterRoom_LackOfChips
+			minChips := res["MinChips"].(float64)
+			if minChips > 1000 {
+				Delay(func() {
+					a.enterRandRoom()
+				})
+			} else {
+				log.Debug("accID: %v 携带的筹码已小于1000")
+			}
+		case 7: // S2C_EnterRoom_NotRightNow
 			Delay(func() {
 				a.enterRandRoom()
 			})
 		}
 	} else if res, ok := jsonMap["S2C_SitDown"].(map[string]interface{}); ok {
-		if a.isMe(int(res["Position"].(float64))) {
-			a.prepare()
+		pos := int(res["Position"].(float64))
+		if pos == 2 {
+			Delay(func() {
+				a.prepare()
+			})
+		}
+	} else if res, ok := jsonMap["S2C_ExitRoom"].(map[string]interface{}); ok {
+		err := res["Error"].(float64)
+		switch err {
+		case 0:
+			pos := int(res["Position"].(float64))
+			if a.isMe(pos) {
+				Delay(func() {
+					a.enterRandRoom()
+				})
+			} else {
+				a.exitRoom()
+			}
 		}
 	} else if res, ok := jsonMap["S2C_UpdatePokerHands"].(map[string]interface{}); ok {
 		if a.isMe(int(res["Position"].(float64))) {

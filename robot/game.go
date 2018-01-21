@@ -37,6 +37,10 @@ func (a *Agent) enterRoom() {
 	a.writeMsg(&msg.C2S_EnterRoom{})
 }
 
+func (a *Agent) exitRoom() {
+	a.writeMsg(&msg.C2S_ExitRoom{})
+}
+
 func (a *Agent) enterRandRoom() {
 	a.playerData.getRandRoom()
 	switch a.playerData.RoomType {

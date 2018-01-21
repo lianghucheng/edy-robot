@@ -13,8 +13,9 @@ type C2S_SetRobotData struct {
 	LoginIP string
 }
 
-type C2S_EnterRoom struct {
-}
+type C2S_EnterRoom struct{}
+
+type C2S_ExitRoom struct{}
 
 type C2S_LandlordMatching struct {
 	RoomType      int // 房间类型: 1 底分匹配、4 红包匹配
