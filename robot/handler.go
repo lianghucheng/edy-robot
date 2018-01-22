@@ -93,8 +93,9 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 	} else if res, ok := jsonMap["S2C_ActionLandlordBid"].(map[string]interface{}); ok {
 		if a.isMe(int(res["Position"].(float64))) {
 			Delay(func() {
-				a.playerData.analyzer.Analyze(a.playerData.hands)
-				if a.playerData.analyzer.HasKingBomb || a.playerData.analyzer.HasBomb {
+				analyzer := new(poker.LandlordAnalyzer)
+				analyzer.Analyze(a.playerData.hands)
+				if analyzer.HasKingBomb || analyzer.HasBomb {
 					a.bid(true)
 				} else {
 					a.bid(false)

@@ -3,7 +3,6 @@ package robot
 import (
 	"czddz-robot/common"
 	"czddz-robot/net"
-	"czddz-robot/poker"
 	"encoding/json"
 	"flag"
 	"github.com/gorilla/websocket"
@@ -92,7 +91,6 @@ func newAgent(conn *net.MyConn) network.Agent {
 
 func newPlayerData() *PlayerData {
 	playerData := new(PlayerData)
-	playerData.analyzer = new(poker.LandlordAnalyzer)
 	return playerData
 }
 

@@ -1,7 +1,6 @@
 package robot
 
 import (
-	"czddz-robot/poker"
 	"math/rand"
 )
 
@@ -33,8 +32,7 @@ type PlayerData struct {
 	Position      int
 	Role          int
 
-	hands    []int
-	analyzer *poker.LandlordAnalyzer
+	hands []int
 }
 
 func (playerData *PlayerData) getRandRoom() {
