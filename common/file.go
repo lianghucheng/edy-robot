@@ -11,7 +11,7 @@ import (
 func ReadFile(fileName string) ([]string, error) {
 	f, err := os.Open(fileName)
 	defer f.Close()
-	var names []string
+	names := make([]string, 0)
 	if err != nil {
 		return names, err
 	}

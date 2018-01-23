@@ -48,3 +48,11 @@ type C2S_LandlordShowCards struct {
 type C2S_SystemHost struct {
 	Host bool
 }
+
+type C2S_FakeWXPay struct {
+	TotalFee int
+}
+
+type S2C_PayOK struct {
+	Chips int64
+}

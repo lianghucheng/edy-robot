@@ -2,6 +2,7 @@ package robot
 
 import (
 	"czddz-robot/msg"
+	"math/rand"
 	"strconv"
 )
 
@@ -41,8 +42,17 @@ func (a *Agent) exitRoom() {
 	a.writeMsg(&msg.C2S_ExitRoom{})
 }
 
-func (a *Agent) enterRandRoom() {
-	a.playerData.getRandRoom()
+func (a *Agent) enterBaseScoreMatchingRoom() {
+	a.playerData.getRandBaseScoreMatchingRoom()
+	a.startMatching(roomBaseScoreMatching, a.playerData.BaseScore, 0)
+}
+
+func (a *Agent) enterRedPacketMatchingRoom() {
+	a.playerData.getRandRedPacketMatchingRoom()
+	a.startMatching(roomRedPacketMatching, 0, a.playerData.RedPacketType)
+}
+
+func (a *Agent) enterTheRoom() {
 	switch a.playerData.RoomType {
 	case roomBaseScoreMatching:
 		a.startMatching(roomBaseScoreMatching, a.playerData.BaseScore, 0)
@@ -50,6 +60,25 @@ func (a *Agent) enterRandRoom() {
 		a.startMatching(roomRedPacketMatching, 0, a.playerData.RedPacketType)
 	}
 }
+
+func (a *Agent) addChips() {
+	switch a.playerData.RoomType {
+	case roomBaseScoreMatching:
+		a.fakeWXPay(rand.Intn(30) + 20)
+	case roomRedPacketMatching:
+		a.fakeWXPay(rand.Intn(200) + 800)
+	}
+}
+
+//func (a *Agent) enterRandRoom() {
+//	a.playerData.getRandRoom()
+//	switch a.playerData.RoomType {
+//	case roomBaseScoreMatching:
+//		a.startMatching(roomBaseScoreMatching, a.playerData.BaseScore, 0)
+//	case roomRedPacketMatching:
+//		a.startMatching(roomRedPacketMatching, 0, a.playerData.RedPacketType)
+//	}
+//}
 
 func (a *Agent) startMatching(roomType int, baseScore int, redPacketType int) {
 	a.writeMsg(&msg.C2S_LandlordMatching{
@@ -96,5 +125,11 @@ func (a *Agent) showCards(showCards bool) {
 func (a *Agent) systemHost() {
 	a.writeMsg(&msg.C2S_SystemHost{
 		Host: true,
+	})
+}
+
+func (a *Agent) fakeWXPay(totalFee int) {
+	a.writeMsg(&msg.C2S_FakeWXPay{
+		TotalFee: totalFee,
 	})
 }

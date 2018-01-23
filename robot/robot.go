@@ -26,7 +26,7 @@ var (
 	mu          sync.Mutex
 	Play        *bool
 
-	robotNumber = 100 // 机器人数量
+	robotNumber = 200 // 机器人数量
 )
 
 func init() {
@@ -41,7 +41,7 @@ func init() {
 	ips = common.Shuffle2(ips)
 	if err == nil {
 		nicknames = append(nicknames, names[:robotNumber]...)
-		loginIPs = append(loginIPs, ips[:100]...)
+		loginIPs = append(loginIPs, ips[:robotNumber]...)
 	} else {
 		log.Debug("read file error: %v", err)
 	}

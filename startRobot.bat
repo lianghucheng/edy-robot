@@ -1,1 +1,3 @@
-go run main.go -Play=true
+@echo on
+go install czddz-robot
+%GOPATH%\bin\czddz-robot -Play=true
