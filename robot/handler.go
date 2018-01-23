@@ -26,12 +26,10 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 			if *Play {
 				index, _ := strconv.Atoi(a.playerData.Unionid)
 				if index > 99 {
-					CronFunc("0 12 * * * *", func() {
-						log.Debug("aaa")
+					CronFunc("10 0 12 * * *", func() {
 						a.enterRedPacketMatchingRoom()
 					})
-					CronFunc("0 20 * * * *", func() {
-						log.Debug("bbb")
+					CronFunc("10 0 20 * * *", func() {
 						a.enterRedPacketMatchingRoom()
 					})
 				} else {
