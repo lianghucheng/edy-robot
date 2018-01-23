@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/name5566/leaf/log"
 	"github.com/name5566/leaf/network"
+	"github.com/name5566/leaf/timer"
 	"math/rand"
 	"strconv"
 	"sync"
@@ -27,6 +28,8 @@ var (
 	Play        *bool
 
 	robotNumber = 200 // 机器人数量
+
+	dispatcher *timer.Dispatcher
 )
 
 func init() {
@@ -52,6 +55,8 @@ func init() {
 		unionids = append(unionids, strconv.Itoa(i))
 		headimgurls = append(headimgurls, "https://www.shenzhouxing.com/robot/"+strconv.Itoa(temp[i])+".jpg")
 	}
+
+	dispatcher = timer.NewDispatcher(0)
 }
 
 func Init() {
@@ -121,7 +126,11 @@ func (a *Agent) readMsg() {
 
 func (a *Agent) Run() {
 	go a.wechatLogin()
-	a.readMsg()
+	go a.readMsg()
+
+	for {
+		(<-dispatcher.ChanTimer).Cb()
+	}
 }
 
 func (a *Agent) OnClose() {

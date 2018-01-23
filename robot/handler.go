@@ -3,6 +3,7 @@ package robot
 import (
 	"czddz-robot/poker"
 	"github.com/name5566/leaf/log"
+	"github.com/name5566/leaf/timer"
 	"math/rand"
 	"strconv"
 	"time"
@@ -25,7 +26,14 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 			if *Play {
 				index, _ := strconv.Atoi(a.playerData.Unionid)
 				if index > 99 {
-					a.enterRedPacketMatchingRoom()
+					CronFunc("0 12 * * * *", func() {
+						log.Debug("aaa")
+						a.enterRedPacketMatchingRoom()
+					})
+					CronFunc("0 20 * * * *", func() {
+						log.Debug("bbb")
+						a.enterRedPacketMatchingRoom()
+					})
 				} else {
 					a.enterBaseScoreMatchingRoom()
 				}
@@ -33,15 +41,8 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 				log.Debug("accID: %v 登录", a.playerData.AccountID)
 			}
 		}
-	} else if res, ok := jsonMap["S2C_CreateRoom"].(map[string]interface{}); ok {
-		err := res["Error"].(float64)
-		switch err {
-		case 6:
-			log.Debug("accID: %v 需要%v筹码才能游戏", a.playerData.AccountID, res["MinChips"].(float64))
-			a.addChips()
-		}
 	} else if res, ok := jsonMap["S2C_EnterRoom"].(map[string]interface{}); ok {
-		err := res["Error"].(float64)
+		err := int(res["Error"].(float64))
 		switch err {
 		case 0:
 			a.playerData.Position = int(res["Position"].(float64))
@@ -51,10 +52,10 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 			switch a.playerData.RoomType {
 			case roomBaseScoreMatching:
 				a.playerData.BaseScore = int(res["BaseScore"].(float64))
-				log.Debug("accID: %v 进入房间:%v 底分: %v", a.playerData.AccountID, roomNumber, a.playerData.BaseScore)
+				log.Debug("accID: %v 进入房间: %v 底分: %v", a.playerData.AccountID, roomNumber, a.playerData.BaseScore)
 			case roomRedPacketMatching:
 				a.playerData.RedPacketType = int(res["RedPacketType"].(float64))
-				log.Debug("accID: %v 进入房间:%v 红包: %v", a.playerData.AccountID, roomNumber, a.playerData.RedPacketType)
+				log.Debug("accID: %v 进入房间: %v 红包: %v", a.playerData.AccountID, roomNumber, a.playerData.RedPacketType)
 			}
 			// a.getAllPlayer()
 			duration := 10 * time.Minute
@@ -68,11 +69,7 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 			log.Debug("accID: %v 需要%v筹码才能进入", a.playerData.AccountID, res["MinChips"].(float64))
 			a.addChips()
 		case 7: // S2C_EnterRoom_NotRightNow
-			duration := 10 * time.Minute
-			// duration := 5 * time.Second
-			time.AfterFunc(duration, func() {
-				a.enterRedPacketMatchingRoom()
-			})
+			log.Debug("accID: %v 红包比赛暂未开始", a.playerData.AccountID)
 		}
 	} else if res, ok := jsonMap["S2C_SitDown"].(map[string]interface{}); ok {
 		pos := int(res["Position"].(float64))
@@ -82,7 +79,7 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 			})
 		}
 	} else if res, ok := jsonMap["S2C_ExitRoom"].(map[string]interface{}); ok {
-		err := res["Error"].(float64)
+		err := int(res["Error"].(float64))
 		switch err {
 		case 0:
 			pos := int(res["Position"].(float64))
@@ -158,6 +155,15 @@ func To1DimensionalArray(array []interface{}) []int {
 
 func Delay(cb func()) {
 	time.AfterFunc(time.Duration(rand.Intn(2)+3)*time.Second, func() {
+		if cb != nil {
+			cb()
+		}
+	})
+}
+
+func CronFunc(expr string, cb func()) {
+	cronExpr, _ := timer.NewCronExpr(expr)
+	dispatcher.CronFunc(cronExpr, func() {
 		if cb != nil {
 			cb()
 		}
