@@ -26,6 +26,8 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 			if *Play {
 				index, _ := strconv.Atoi(a.playerData.Unionid)
 				if index > 99 {
+					a.enterRedPacketMatchingRoom()
+
 					CronFunc("10 0 12 * * *", func() {
 						a.enterRedPacketMatchingRoom()
 					})

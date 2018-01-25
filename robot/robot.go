@@ -125,12 +125,14 @@ func (a *Agent) readMsg() {
 }
 
 func (a *Agent) Run() {
-	go a.wechatLogin()
-	go a.readMsg()
+	go func() {
+		for {
+			(<-dispatcher.ChanTimer).Cb()
+		}
+	}()
 
-	for {
-		(<-dispatcher.ChanTimer).Cb()
-	}
+	go a.wechatLogin()
+	a.readMsg()
 }
 
 func (a *Agent) OnClose() {
