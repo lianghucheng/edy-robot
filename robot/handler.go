@@ -81,6 +81,7 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 					a.enterTheRoom()
 				})
 			} else if pos == a.playerData.MaxPlayers-1 {
+				StopTimer(a.playerData.exitRoomTimer)
 				a.exitRoom()
 			}
 		}
