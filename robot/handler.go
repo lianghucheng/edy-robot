@@ -95,10 +95,7 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 				a.exitRoom()
 			})
 		} else if pos == a.playerData.MaxPlayers-1 && ready {
-			if a.playerData.exitRoomTimer != nil {
-				a.playerData.exitRoomTimer.Stop()
-				a.playerData.exitRoomTimer = nil
-			}
+			StopTimer(a.playerData.exitRoomTimer)
 		}
 	} else if res, ok := jsonMap["S2C_UpdatePokerHands"].(map[string]interface{}); ok {
 		if a.isMe(int(res["Position"].(float64))) {
@@ -174,4 +171,11 @@ func CronFunc(expr string, cb func()) {
 			cb()
 		}
 	})
+}
+
+func StopTimer(t *time.Timer) {
+	if t != nil {
+		t.Stop()
+		t = nil
+	}
 }
