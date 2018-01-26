@@ -29,6 +29,11 @@ type C2S_LandlordPrepare struct {
 	ShowCards bool
 }
 
+type S2C_Prepare struct {
+	Position int
+	Ready    bool
+}
+
 type C2S_LandlordBid struct {
 	Bid bool
 }

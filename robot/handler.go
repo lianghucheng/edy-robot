@@ -58,13 +58,6 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 				log.Debug("accID: %v 进入房间: %v 红包: %v", a.playerData.AccountID, roomNumber, a.playerData.RedPacketType)
 			}
 			// a.getAllPlayer()
-			duration := 10 * time.Minute
-			// duration := 5 * time.Second
-			time.AfterFunc(duration, func() {
-				if !a.playerData.gamePlaying {
-					a.exitRoom()
-				}
-			})
 		case 6: // S2C_EnterRoom_LackOfChips
 			log.Debug("accID: %v 需要%v筹码才能进入", a.playerData.AccountID, res["MinChips"].(float64))
 			a.addChips()
@@ -91,8 +84,22 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 				a.exitRoom()
 			}
 		}
-	} else if _, ok := jsonMap["S2C_GameStart"].(map[string]interface{}); ok {
-		a.playerData.gamePlaying = true
+	} else if res, ok := jsonMap["S2C_Prepare"].(map[string]interface{}); ok {
+		pos := int(res["Position"].(float64))
+		ready := res["Ready"].(bool)
+		if a.isMe(pos) && ready {
+			duration := 10 * time.Minute
+			// duration := 5 * time.Second
+			a.playerData.exitRoomTimer = time.AfterFunc(duration, func() {
+				a.playerData.exitRoomTimer = nil
+				a.exitRoom()
+			})
+		} else if pos == a.playerData.MaxPlayers-1 && ready {
+			if a.playerData.exitRoomTimer != nil {
+				a.playerData.exitRoomTimer.Stop()
+				a.playerData.exitRoomTimer = nil
+			}
+		}
 	} else if res, ok := jsonMap["S2C_UpdatePokerHands"].(map[string]interface{}); ok {
 		if a.isMe(int(res["Position"].(float64))) {
 			if res["Hands"] != nil {
@@ -133,7 +140,7 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 			})
 		}
 	} else if _, ok := jsonMap["S2C_LandlordRoundResult"].(map[string]interface{}); ok {
-		a.playerData.gamePlaying = false
+		a.playerData.allReady = false
 		Delay(func() {
 			a.enterTheRoom()
 		})

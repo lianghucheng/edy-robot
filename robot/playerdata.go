@@ -2,6 +2,7 @@ package robot
 
 import (
 	"math/rand"
+	"time"
 )
 
 // 房间类型
@@ -32,8 +33,8 @@ type PlayerData struct {
 	Position      int
 	Role          int
 
-	hands       []int
-	gamePlaying bool
+	hands         []int
+	exitRoomTimer *time.Timer
 }
 
 func (playerData *PlayerData) getRandRedPacketMatchingRoom() {
