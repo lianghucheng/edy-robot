@@ -140,7 +140,6 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 			})
 		}
 	} else if _, ok := jsonMap["S2C_LandlordRoundResult"].(map[string]interface{}); ok {
-		a.playerData.allReady = false
 		Delay(func() {
 			a.enterTheRoom()
 		})
