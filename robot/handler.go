@@ -96,7 +96,7 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 		}
 	} else if res, ok := jsonMap["S2C_Prepare"].(map[string]interface{}); ok {
 		pos := int(res["Position"].(float64))
-		log.Debug("当前发送位置：%v 自己位置：%v", pos, a.playerData.Position)
+		//log.Debug("当前发送位置：%v 自己位置：%v", pos, a.playerData.Position)
 		ready := res["Ready"].(bool)
 		if a.isMe(pos) && ready {
 			duration := 10 * time.Minute
