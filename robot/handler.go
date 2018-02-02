@@ -58,6 +58,12 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 				log.Debug("accID: %v 进入房间: %v 红包: %v", a.playerData.AccountID, roomNumber, a.playerData.RedPacketType)
 			}
 			// a.getAllPlayer()
+		case 4:
+			// S2C_EnterRoom_Unknown
+			// 机器人进入房间不会创建，如果没有一人房或者两人房就返回这条错误
+			// 延迟进入
+			log.Debug("accID: %v 无房间可进")
+			DelayDo(10*time.Second, a.enterRoom)
 		case 6: // S2C_EnterRoom_LackOfChips
 			log.Debug("accID: %v 需要%v筹码才能进入", a.playerData.AccountID, res["MinChips"].(float64))
 			a.addChips()
@@ -163,6 +169,13 @@ func Delay(cb func()) {
 			cb()
 		}
 	})
+}
+
+func DelayDo(d time.Duration, cb func()) {
+	if cb == nil {
+		return
+	}
+	time.AfterFunc(d, cb)
 }
 
 func CronFunc(expr string, cb func()) {
