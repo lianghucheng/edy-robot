@@ -35,7 +35,8 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 						a.enterRedPacketMatchingRoom()
 					})
 				} else {
-					a.enterBaseScoreMatchingRoom()
+					delayTime, _ := strconv.Atoi(a.playerData.Unionid)
+					DelayDo(time.Duration(delayTime+10)*time.Second, a.enterBaseScoreMatchingRoom)
 				}
 			} else {
 				log.Debug("accID: %v 登录", a.playerData.AccountID)
@@ -57,13 +58,14 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 				a.playerData.RedPacketType = int(res["RedPacketType"].(float64))
 				log.Debug("accID: %v 进入房间: %v 红包: %v", a.playerData.AccountID, roomNumber, a.playerData.RedPacketType)
 			}
-			// a.getAllPlayer()
+			a.getAllPlayer()
 		case 4:
 			// S2C_EnterRoom_Unknown
 			// 机器人进入房间不会创建，如果没有一人房或者两人房就返回这条错误
 			// 延迟进入
-			log.Debug("accID: %v 无房间可进")
-			DelayDo(10*time.Second, a.enterRoom)
+			//log.Debug("无房间可进")
+			delayTime, _ := strconv.Atoi(a.playerData.Unionid)
+			DelayDo(time.Duration(delayTime+10)*time.Second, a.enterBaseScoreMatchingRoom)
 		case 6: // S2C_EnterRoom_LackOfChips
 			log.Debug("accID: %v 需要%v筹码才能进入", a.playerData.AccountID, res["MinChips"].(float64))
 			a.addChips()
@@ -72,7 +74,8 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 		}
 	} else if res, ok := jsonMap["S2C_SitDown"].(map[string]interface{}); ok {
 		pos := int(res["Position"].(float64))
-		if pos == a.playerData.MaxPlayers-1 {
+		//if pos == a.playerData.MaxPlayers-1 {
+		if pos == a.playerData.Position {
 			Delay(func() {
 				a.prepare()
 			})
@@ -93,6 +96,7 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 		}
 	} else if res, ok := jsonMap["S2C_Prepare"].(map[string]interface{}); ok {
 		pos := int(res["Position"].(float64))
+		log.Debug("当前发送位置：%v 自己位置：%v", pos, a.playerData.Position)
 		ready := res["Ready"].(bool)
 		if a.isMe(pos) && ready {
 			duration := 10 * time.Minute
