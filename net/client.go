@@ -30,7 +30,9 @@ func (client *Client) Start() {
 	for i := 0; i < client.ConnNum; i++ {
 		client.wg.Add(1)
 		go client.connect()
-		time.Sleep(300 * time.Millisecond)
+		//time.Sleep(300 * time.Millisecond)
+		// TODO 延迟登陆1秒，错开匹配时间
+		time.Sleep(1 * time.Second)
 	}
 }
 

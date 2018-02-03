@@ -35,8 +35,9 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 						a.enterRedPacketMatchingRoom()
 					})
 				} else {
-					delayTime, _ := strconv.Atoi(a.playerData.Unionid)
-					DelayDo(time.Duration(delayTime+10)*time.Second, a.enterBaseScoreMatchingRoom)
+					//delayTime, _ := strconv.Atoi(a.playerData.Unionid)
+					//DelayDo(time.Duration(delayTime+10)*time.Second, a.enterBaseScoreMatchingRoom)
+					DelayDo(time.Duration(10)*time.Second, a.enterBaseScoreMatchingRoom)
 				}
 			} else {
 				log.Debug("accID: %v 登录", a.playerData.AccountID)
@@ -64,8 +65,8 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 			// 机器人进入房间不会创建，如果没有一人房或者两人房就返回这条错误
 			// 延迟进入
 			//log.Debug("无房间可进")
-			delayTime, _ := strconv.Atoi(a.playerData.Unionid)
-			DelayDo(time.Duration(delayTime+10)*time.Second, a.enterBaseScoreMatchingRoom)
+			//delayTime, _ := strconv.Atoi(a.playerData.Unionid)
+			DelayDo(time.Duration(10)*time.Second, a.enterBaseScoreMatchingRoom)
 		case 6: // S2C_EnterRoom_LackOfChips
 			log.Debug("accID: %v 需要%v筹码才能进入", a.playerData.AccountID, res["MinChips"].(float64))
 			a.addChips()
