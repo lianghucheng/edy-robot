@@ -17,8 +17,8 @@ const (
 
 var (
 	roomType = []int{roomBaseScoreMatching, roomRedPacketMatching}
-	// baseScore     = []int{100, 5000, 10000}
-	baseScore     = []int{100}
+	// baseScore     = []int{500, 3000, 10000}
+	baseScore     = []int{500}
 	redPacketType = []int{1, 10}
 )
 

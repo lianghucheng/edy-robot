@@ -16,8 +16,9 @@ import (
 )
 
 var (
-	addr = "ws://czddz.shenzhouxing.com:3658"
-	//addr        = "ws://192.168.1.240:3658"
+	// addr = "ws://czddz.shenzhouxing.com:3658"
+	// addr        = "ws://139.199.180.94:3658"
+	addr        = "ws://192.168.1.168:3658"
 	clients     []*net.Client
 	unionids    []string
 	nicknames   []string
@@ -27,7 +28,7 @@ var (
 	mu          sync.Mutex
 	Play        *bool
 
-	robotNumber = 200 // 机器人数量
+	robotNumber = 1 // 机器人数量
 
 	dispatcher *timer.Dispatcher
 )
@@ -40,7 +41,7 @@ func init() {
 	names, err = common.ReadFile("D:/robot_nickname.txt")
 	names = common.Shuffle2(names)
 
-	ips, _ = common.ReadFile("D:/robot_ip.txt")
+	ips, _ = common.ReadFile("D:/czddz_ip2.txt")
 	ips = common.Shuffle2(ips)
 	if err == nil {
 		nicknames = append(nicknames, names[:robotNumber]...)
@@ -60,7 +61,7 @@ func init() {
 }
 
 func Init() {
-	Play = flag.Bool("Play", false, "control robot enter game")
+	Play = flag.Bool("Play", true, "control robot enter game")
 	flag.Parse()
 	log.Debug("Play: %v", *Play)
 	client := new(net.Client)
@@ -96,6 +97,7 @@ func newAgent(conn *net.MyConn) network.Agent {
 
 func newPlayerData() *PlayerData {
 	playerData := new(PlayerData)
+	playerData.Position = -1
 	return playerData
 }
 

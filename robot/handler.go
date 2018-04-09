@@ -5,7 +5,6 @@ import (
 	"github.com/name5566/leaf/log"
 	"github.com/name5566/leaf/timer"
 	"math/rand"
-	"strconv"
 	"time"
 )
 
@@ -23,25 +22,24 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 		if res["AnotherRoom"].(bool) {
 			a.enterRoom()
 		} else {
-			if *Play {
-				index, _ := strconv.Atoi(a.playerData.Unionid)
-				if index > 99 {
-					a.enterRedPacketMatchingRoom()
-
-					CronFunc("10 0 12 * * *", func() {
-						a.enterRedPacketMatchingRoom()
-					})
-					CronFunc("10 0 20 * * *", func() {
-						a.enterRedPacketMatchingRoom()
-					})
-				} else {
-					//delayTime, _ := strconv.Atoi(a.playerData.Unionid)
-					//DelayDo(time.Duration(delayTime+10)*time.Second, a.enterBaseScoreMatchingRoom)
-					DelayDo(time.Duration(10)*time.Second, a.enterBaseScoreMatchingRoom)
-				}
-			} else {
-				log.Debug("accID: %v 登录", a.playerData.AccountID)
-			}
+			Delay(a.enterBaseScoreMatchingRoom)
+			//if *Play {
+			//	index, _ := strconv.Atoi(a.playerData.Unionid)
+			//	if index > 99 {
+			//		a.enterRedPacketMatchingRoom()
+			//
+			//		CronFunc("10 0 12 * * *", func() {
+			//			a.enterRedPacketMatchingRoom()
+			//		})
+			//		CronFunc("10 0 20 * * *", func() {
+			//			a.enterRedPacketMatchingRoom()
+			//		})
+			//	} else {
+			//		Delay(a.enterBaseScoreMatchingRoom)
+			//	}
+			//} else {
+			//	log.Debug("accID: %v 登录", a.playerData.AccountID)
+			//}
 		}
 	} else if res, ok := jsonMap["S2C_EnterRoom"].(map[string]interface{}); ok {
 		err := int(res["Error"].(float64))
@@ -60,13 +58,9 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 				log.Debug("accID: %v 进入房间: %v 红包: %v", a.playerData.AccountID, roomNumber, a.playerData.RedPacketType)
 			}
 			a.getAllPlayer()
-		case 4:
-			// S2C_EnterRoom_Unknown
-			// 机器人进入房间不会创建，如果没有一人房或者两人房就返回这条错误
-			// 延迟进入
-			//log.Debug("无房间可进")
-			//delayTime, _ := strconv.Atoi(a.playerData.Unionid)
-			DelayDo(time.Duration(10)*time.Second, a.enterBaseScoreMatchingRoom)
+		case 4: // S2C_EnterRoom_Unknown
+			// 机器人只进入房间不创建房间
+			Delay(a.enterTheRoom)
 		case 6: // S2C_EnterRoom_LackOfChips
 			log.Debug("accID: %v 需要%v筹码才能进入", a.playerData.AccountID, res["MinChips"].(float64))
 			a.addChips()
@@ -75,8 +69,7 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 		}
 	} else if res, ok := jsonMap["S2C_SitDown"].(map[string]interface{}); ok {
 		pos := int(res["Position"].(float64))
-		//if pos == a.playerData.MaxPlayers-1 {
-		if pos == a.playerData.Position {
+		if a.isMe(pos) {
 			Delay(func() {
 				a.prepare()
 			})
@@ -97,7 +90,6 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 		}
 	} else if res, ok := jsonMap["S2C_Prepare"].(map[string]interface{}); ok {
 		pos := int(res["Position"].(float64))
-		//log.Debug("当前发送位置：%v 自己位置：%v", pos, a.playerData.Position)
 		ready := res["Ready"].(bool)
 		if a.isMe(pos) && ready {
 			duration := 10 * time.Minute
@@ -169,18 +161,15 @@ func To1DimensionalArray(array []interface{}) []int {
 }
 
 func Delay(cb func()) {
-	time.AfterFunc(time.Duration(rand.Intn(2)+3)*time.Second, func() {
-		if cb != nil {
-			cb()
-		}
-	})
+	if cb != nil {
+		time.AfterFunc(time.Duration(rand.Intn(2)+3)*time.Second, cb)
+	}
 }
 
 func DelayDo(d time.Duration, cb func()) {
-	if cb == nil {
-		return
+	if cb != nil {
+		time.AfterFunc(d, cb)
 	}
-	time.AfterFunc(d, cb)
 }
 
 func CronFunc(expr string, cb func()) {
