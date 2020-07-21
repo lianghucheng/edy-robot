@@ -1,7 +1,7 @@
 package poker
 
 import (
-	"czddz-robot/common"
+	"edy-robot/common"
 	"github.com/name5566/leaf/log"
 	"sort"
 )

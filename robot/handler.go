@@ -1,7 +1,10 @@
 package robot
 
 import (
-	"czddz-robot/poker"
+	"edy-robot/msg"
+	"edy-robot/poker"
+	"encoding/json"
+	"fmt"
 	"github.com/name5566/leaf/log"
 	"github.com/name5566/leaf/timer"
 	"math/rand"
@@ -13,142 +16,93 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 		a.sendHeartbeat()
 	} else if res, ok := jsonMap["S2C_Login"].(map[string]interface{}); ok {
 		a.playerData.AccountID = int(res["AccountID"].(float64))
+		log.Debug("登录成功！%v", a.playerData.AccountID)
 		a.playerData.Role = int(res["Role"].(float64))
 		if a.playerData.Role != roleRobot {
-			log.Debug("accID: %v 登录初始化", a.playerData.AccountID)
-			a.setRobotData()
-			return
+			log.Debug("accID: %v 登录初始化，因为不是机器人。", a.playerData.AccountID)
+			//todo: Set character to robot.
 		}
-		if res["AnotherRoom"].(bool) {
-			a.enterRoom()
-		} else {
-			Delay(a.enterBaseScoreMatchingRoom)
-			//if *Play {
-			//	index, _ := strconv.Atoi(a.playerData.Unionid)
-			//	if index > 99 {
-			//		a.enterRedPacketMatchingRoom()
-			//
-			//		CronFunc("10 0 12 * * *", func() {
-			//			a.enterRedPacketMatchingRoom()
-			//		})
-			//		CronFunc("10 0 20 * * *", func() {
-			//			a.enterRedPacketMatchingRoom()
-			//		})
-			//	} else {
-			//		Delay(a.enterBaseScoreMatchingRoom)
-			//	}
-			//} else {
-			//	log.Debug("accID: %v 登录", a.playerData.AccountID)
-			//}
-		}
-	} else if res, ok := jsonMap["S2C_EnterRoom"].(map[string]interface{}); ok {
-		err := int(res["Error"].(float64))
-		switch err {
-		case 0:
-			a.playerData.Position = int(res["Position"].(float64))
-			a.playerData.RoomType = int(res["RoomType"].(float64))
-			a.playerData.MaxPlayers = int(res["MaxPlayers"].(float64))
-			roomNumber := res["RoomNumber"].(string)
-			switch a.playerData.RoomType {
-			case roomBaseScoreMatching:
-				a.playerData.BaseScore = int(res["BaseScore"].(float64))
-				log.Debug("accID: %v 进入房间: %v 底分: %v", a.playerData.AccountID, roomNumber, a.playerData.BaseScore)
-			case roomRedPacketMatching:
-				a.playerData.RedPacketType = int(res["RedPacketType"].(float64))
-				log.Debug("accID: %v 进入房间: %v 红包: %v", a.playerData.AccountID, roomNumber, a.playerData.RedPacketType)
-			}
-			a.getAllPlayer()
-		case 4: // S2C_EnterRoom_Unknown
-			// 机器人只进入房间不创建房间
-			Delay(a.enterTheRoom)
-		case 6: // S2C_EnterRoom_LackOfChips
-			log.Debug("accID: %v 需要%v筹码才能进入", a.playerData.AccountID, res["MinChips"].(float64))
-			a.addChips()
-		case 7: // S2C_EnterRoom_NotRightNow
-			log.Debug("accID: %v 红包比赛暂未开始", a.playerData.AccountID)
-		}
-	} else if res, ok := jsonMap["S2C_SitDown"].(map[string]interface{}); ok {
-		pos := int(res["Position"].(float64))
-		if a.isMe(pos) {
+		if len(a.matchids) == 0 {
+			a.writeMsg(&msg.C2S_RaceInfo{})
 			Delay(func() {
-				a.prepare()
-			})
-		}
-	} else if res, ok := jsonMap["S2C_ExitRoom"].(map[string]interface{}); ok {
-		err := int(res["Error"].(float64))
-		switch err {
-		case 0:
-			pos := int(res["Position"].(float64))
-			if a.isMe(pos) {
-				Delay(func() {
-					a.enterTheRoom()
-				})
-			} else if pos == a.playerData.MaxPlayers-1 {
-				StopTimer(a.playerData.exitRoomTimer)
-				a.exitRoom()
-			}
-		}
-	} else if res, ok := jsonMap["S2C_Prepare"].(map[string]interface{}); ok {
-		pos := int(res["Position"].(float64))
-		ready := res["Ready"].(bool)
-		if a.isMe(pos) && ready {
-			duration := 10 * time.Minute
-			// duration := 5 * time.Second
-			a.playerData.exitRoomTimer = time.AfterFunc(duration, func() {
-				a.playerData.exitRoomTimer = nil
-				a.exitRoom()
-			})
-		} else if pos == a.playerData.MaxPlayers-1 && ready {
-			StopTimer(a.playerData.exitRoomTimer)
-		}
-	} else if res, ok := jsonMap["S2C_UpdatePokerHands"].(map[string]interface{}); ok {
-		if a.isMe(int(res["Position"].(float64))) {
-			if res["Hands"] != nil {
-				a.playerData.hands = To1DimensionalArray(res["Hands"].([]interface{}))
-				log.Debug("hands: %v", poker.ToCardsString(a.playerData.hands))
-			}
-		}
-	} else if res, ok := jsonMap["S2C_ActionLandlordBid"].(map[string]interface{}); ok {
-		if a.isMe(int(res["Position"].(float64))) {
-			Delay(func() {
-				analyzer := new(poker.LandlordAnalyzer)
-				analyzer.Analyze(a.playerData.hands)
-				if analyzer.HasKingBomb || analyzer.HasBomb {
-					a.bid(true)
-				} else {
-					a.bid(false)
+				if a != nil {
+					a.signIn()
 				}
 			})
 		}
-	} else if res, ok := jsonMap["S2C_ActionLandlordGrab"].(map[string]interface{}); ok {
-		if a.isMe(int(res["Position"].(float64))) {
-			Delay(func() {
-				a.grab(false)
-			})
+	} else if res, ok := jsonMap["S2C_UpdatePokerHands"].(map[string]interface{}); ok {
+		m := new(msg.S2C_UpdatePokerHands)
+		if parseObject(res, m) {
+			if a.isMe(m.Position) {
+				a.playerData.hands = m.Hands
+				log.Debug("hands: %v", poker.ToCardsString(a.playerData.hands))
+			}
 		}
-	} else if _, ok := jsonMap["S2C_ActionLandlordDouble"].(map[string]interface{}); ok {
-		Delay(func() {
-			a.double(false)
-		})
-	} else if _, ok := jsonMap["S2C_ActionLandlordShowCards"].(map[string]interface{}); ok {
-		Delay(func() {
-			a.showCards(false)
-		})
-	} else if res, ok := jsonMap["S2C_ActionLandlordDiscard"].(map[string]interface{}); ok {
-		if a.isMe(int(res["Position"].(float64))) {
-			Delay(func() {
-				a.systemHost()
-			})
+	} else if res, ok := jsonMap["S2C_RaceInfo"]; ok {
+		log.Debug("收到赛事信息")
+		msgRaceinfo := new(msg.S2C_RaceInfo)
+		if parseObject(res, msgRaceinfo) {
+			a.matchids = []string{}
+			for _, race := range msgRaceinfo.Races {
+				a.matchids = append(a.matchids, race.ID)
+			}
 		}
-	} else if _, ok := jsonMap["S2C_LandlordRoundResult"].(map[string]interface{}); ok {
-		Delay(func() {
-			a.enterTheRoom()
+	} else if res, ok := jsonMap["S2C_Apply"]; ok {
+		m := new(msg.S2C_Apply)
+		if parseObject(res, m) {
+			if m.Error == 0 && m.Action == 1 {
+				log.Debug("报名成功")
+				a.currMatchid = m.RaceID
+			} else if m.Error != 0 {
+				log.Debug("%v", m.Error)
+				if a.signOutTimer != nil {
+					a.signOutTimer.Stop()
+					a.signOutTimer = nil
+				}
+				Delay(a.signIn)
+			}
+		}
+	} else if res, ok := jsonMap["S2C_EnterRoom"]; ok {
+		log.Debug("准备开始比赛")
+		msgEnterRoom := new(msg.S2C_EnterRoom)
+		if parseObject(res, msgEnterRoom) {
+			if msgEnterRoom.Error == 0 {
+				a.playerData.Position = msgEnterRoom.Position
+			}
+		}
+		a.playerData.isPlay = true
+		a.currMatchid = ""
+	} else if res, ok := jsonMap["S2C_ActionLandlordBid"]; ok {
+		m := new(msg.S2C_ActionLandlordBid)
+		if parseObject(res, m) {
+			if a.isMe(m.Position) {
+				log.Debug("叫分")
+				a.doBid(m.Score)
+			}
+		}
+	} else if _, ok := jsonMap["S2C_ActionLandlordDouble"]; ok {
+		log.Debug("加倍")
+		a.doDouble()
+	} else if _, ok := jsonMap["S2C_LandlordRoundFinalResult"]; ok {
+		log.Debug("打完了一局")
+		fmt.Println("打完了一局")
+	} else if _, ok := jsonMap["S2C_MineRoundRank"]; ok {
+		log.Debug("比赛结束")
+		a.playerData.isPlay = false
+		time.AfterFunc(10 * time.Second, func() {
+			if a != nil {
+				a.signIn()
+			}
 		})
-	} else if res, ok := jsonMap["S2C_PayOK"].(map[string]interface{}); ok {
-		log.Debug("accID: %v 加钱: %v", a.playerData.AccountID, res["Chips"].(float64))
-		Delay(func() {
-			a.enterTheRoom()
-		})
+	} else if res, ok := jsonMap["S2C_ActionLandlordDiscard"]; ok {
+		m := new(msg.S2C_ActionLandlordDiscard)
+		if parseObject(res, m) {
+			if a.isMe(m.Position) {
+				log.Debug("出牌动作")
+				a.playerData.Hint = m.Hint
+				a.doDiscard()
+			}
+		}
 	}
 }
 
@@ -186,4 +140,18 @@ func StopTimer(t *time.Timer) {
 		t.Stop()
 		t = nil
 	}
+}
+
+func parseObject(msg, obj interface{}) bool {
+	b, err := json.Marshal(msg)
+	if err != nil {
+		log.Error(err.Error())
+		return false
+	}
+	err = json.Unmarshal(b, obj)
+	if err != nil {
+		log.Error(err.Error())
+		return false
+	}
+	return true
 }

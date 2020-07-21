@@ -1,7 +1,7 @@
 package poker
 
 import (
-	"czddz-robot/common"
+	"edy-robot/common"
 	"sort"
 )
 

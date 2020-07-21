@@ -1,7 +1,7 @@
 package main
 
 import (
-	"czddz-robot/robot"
+	"edy-robot/robot"
 	llog "github.com/name5566/leaf/log"
 	"log"
 	"os"

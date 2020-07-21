@@ -1,10 +1,10 @@
 package robot
 
 import (
-	"czddz-robot/common"
-	"czddz-robot/net"
+	"edy-robot/common"
+	"edy-robot/net"
 	"encoding/json"
-	"flag"
+	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/name5566/leaf/log"
 	"github.com/name5566/leaf/network"
@@ -18,7 +18,7 @@ import (
 var (
 	// addr = "ws://czddz.shenzhouxing.com:3658"
 	// addr        = "ws://139.199.180.94:3658"
-	addr        = "ws://192.168.1.168:3658"
+	addr        = "ws://192.168.1.8:5658"
 	clients     []*net.Client
 	unionids    []string
 	nicknames   []string
@@ -26,22 +26,22 @@ var (
 	loginIPs    []string
 	count       = 0
 	mu          sync.Mutex
-	Play        *bool
 
-	robotNumber = 1 // 机器人数量
+	robotNumber = 100 // 机器人数量
 
 	dispatcher *timer.Dispatcher
 )
 
 func init() {
+	fmt.Println("test init test init. ")
 	rand.Seed(time.Now().UnixNano())
 
 	names, ips := make([]string, 0), make([]string, 0)
 	var err error
-	names, err = common.ReadFile("D:/robot_nickname.txt")
+	names, err = common.ReadFile("conf/robot_nickname.txt")
 	names = common.Shuffle2(names)
 
-	ips, _ = common.ReadFile("D:/czddz_ip2.txt")
+	ips, _ = common.ReadFile("conf/robot_ip.txt")
 	ips = common.Shuffle2(ips)
 	if err == nil {
 		nicknames = append(nicknames, names[:robotNumber]...)
@@ -53,7 +53,7 @@ func init() {
 	log.Debug("loginIP: %v", loginIPs)
 	log.Debug("nicknames: %v", nicknames)
 	for i := 0; i < robotNumber; i++ {
-		unionids = append(unionids, strconv.Itoa(i))
+		unionids = append(unionids, "robot"+strconv.Itoa(i))
 		headimgurls = append(headimgurls, "https://www.shenzhouxing.com/robot/"+strconv.Itoa(temp[i])+".jpg")
 	}
 
@@ -61,16 +61,13 @@ func init() {
 }
 
 func Init() {
-	Play = flag.Bool("Play", true, "control robot enter game")
-	flag.Parse()
-	log.Debug("Play: %v", *Play)
 	client := new(net.Client)
 	client.Addr = addr
 	client.ConnNum = robotNumber
 	client.ConnectInterval = 3 * time.Second
 	client.HandshakeTimeout = 10 * time.Second
 	client.PendingWriteNum = 100
-	client.MaxMsgLen = 4096
+	client.MaxMsgLen = 4096 * 10000
 	client.NewAgent = newAgent
 
 	client.Start()
@@ -86,6 +83,9 @@ func Destroy() {
 type Agent struct {
 	conn       *net.MyConn
 	playerData *PlayerData
+	matchids   []string
+	currMatchid 	string
+	signOutTimer  *time.Timer
 }
 
 func newAgent(conn *net.MyConn) network.Agent {

@@ -1,6 +1,6 @@
 package poker
 
-import "czddz-robot/common"
+import "edy-robot/common"
 
 func ReSortLandlordCards(cards []int) []int {
 	cardsType := GetLandlordCardsType(cards)

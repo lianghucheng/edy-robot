@@ -1,9 +1,10 @@
 package robot
 
 import (
-	"czddz-robot/msg"
+	"edy-robot/msg"
+	"github.com/name5566/leaf/log"
 	"math/rand"
-	"strconv"
+	"time"
 )
 
 func (a *Agent) isMe(pos int) bool {
@@ -19,117 +20,76 @@ func (a *Agent) wechatLogin() {
 	defer mu.Unlock()
 	a.playerData.Unionid = unionids[count]
 	a.playerData.Nickname = nicknames[count]
-	a.writeMsg(&msg.C2S_WeChatLogin{
-		Unionid:    unionids[count],
-		NickName:   nicknames[count],
-		Headimgurl: headimgurls[count],
+	a.writeMsg(&msg.C2S_UsrnPwdLogin{
+		Username:    unionids[count],
+		Password:   "123456",
 	})
 	count++
-}
-
-func (a *Agent) setRobotData() {
-	index, _ := strconv.Atoi(a.playerData.Unionid)
-	a.writeMsg(&msg.C2S_SetRobotData{
-		LoginIP: loginIPs[index],
-	})
 }
 
 func (a *Agent) enterRoom() {
 	a.writeMsg(&msg.C2S_EnterRoom{})
 }
 
-func (a *Agent) exitRoom() {
-	a.writeMsg(&msg.C2S_ExitRoom{})
-}
-
-func (a *Agent) enterBaseScoreMatchingRoom() {
-	a.playerData.getRandBaseScoreMatchingRoom()
-	a.startMatching(roomBaseScoreMatching, a.playerData.BaseScore, 0)
-}
-
-func (a *Agent) enterRedPacketMatchingRoom() {
-	a.playerData.getRandRedPacketMatchingRoom()
-	a.startMatching(roomRedPacketMatching, 0, a.playerData.RedPacketType)
-}
-
-func (a *Agent) enterTheRoom() {
-	switch a.playerData.RoomType {
-	case roomBaseScoreMatching:
-		a.startMatching(roomBaseScoreMatching, a.playerData.BaseScore, 0)
-	case roomRedPacketMatching:
-		a.startMatching(roomRedPacketMatching, 0, a.playerData.RedPacketType)
+func (a *Agent) signIn() {
+	log.Debug("是否已报名：%v    是否已在比赛：%v", a.isSign(), a.playerData.isPlay)
+	if !a.isSign() && !a.playerData.isPlay {
+		log.Debug("报名")
+		a.writeMsg(&msg.C2S_Apply{
+			MatchId:a.matchids[rand.Intn(len(a.matchids))],
+			Action:1,
+		})
+		a.signOutTimer = time.AfterFunc(10 * time.Second, func() {
+			if a != nil {
+				a.signOut()
+			}
+		})
 	}
 }
 
-func (a *Agent) addChips() {
-	switch a.playerData.RoomType {
-	case roomBaseScoreMatching:
-		a.fakeWXPay(rand.Intn(30) + 20)
-	case roomRedPacketMatching:
-		a.fakeWXPay(rand.Intn(200) + 800)
+func (a *Agent) signOut() {
+	if a.isSign() && !a.playerData.isPlay {
+		log.Debug("退签")
+		a.writeMsg(&msg.C2S_Apply{
+			MatchId: a.currMatchid,
+			Action:2,
+		})
+		a.currMatchid = ""
+		time.AfterFunc(10 * time.Second, func() {
+			if a != nil {
+				a.signIn()
+			}
+		})
 	}
 }
 
-//func (a *Agent) enterRandRoom() {
-//	a.playerData.getRandRoom()
-//	switch a.playerData.RoomType {
-//	case roomBaseScoreMatching:
-//		a.startMatching(roomBaseScoreMatching, a.playerData.BaseScore, 0)
-//	case roomRedPacketMatching:
-//		a.startMatching(roomRedPacketMatching, 0, a.playerData.RedPacketType)
-//	}
-//}
-
-func (a *Agent) startMatching(roomType int, baseScore int, redPacketType int) {
-	a.writeMsg(&msg.C2S_LandlordMatching{
-		RoomType:      roomType,
-		BaseScore:     baseScore,
-		RedPacketType: redPacketType,
-	})
-}
-
-func (a *Agent) getAllPlayer() {
-	a.writeMsg(&msg.C2S_GetAllPlayers{})
-}
-
-func (a *Agent) prepare() {
-	a.writeMsg(&msg.C2S_LandlordPrepare{
-		ShowCards: false,
-	})
-}
-
-func (a *Agent) bid(bid bool) {
+func (a *Agent) doBid(scores []int) {
 	a.writeMsg(&msg.C2S_LandlordBid{
-		Bid: bid,
+		Score: scores[rand.Intn(len(scores))],
 	})
 }
 
-func (a *Agent) grab(grab bool) {
-	a.writeMsg(&msg.C2S_LandlordGrab{
-		Grab: grab,
-	})
-}
-
-func (a *Agent) double(double bool) {
+func (a *Agent) doDouble() {
+	temp := rand.Intn(2)
+	double := false
+	if temp & 1 == 0 {
+		double = true
+	}
 	a.writeMsg(&msg.C2S_LandlordDouble{
-		Double: double,
+		Double:double,
 	})
 }
 
-func (a *Agent) showCards(showCards bool) {
-	a.writeMsg(&msg.C2S_LandlordShowCards{
-		ShowCards: showCards,
-	})
+func (a *Agent) doDiscard() {
+	if len(a.playerData.Hint) > 1 {
+		Delay(func() {
+			a.writeMsg(&msg.C2S_LandlordDiscard{
+				Cards:a.playerData.Hint[rand.Intn(len(a.playerData.Hint))],
+			})
+		})
+	}
 }
 
-func (a *Agent) systemHost() {
-	a.writeMsg(&msg.C2S_SystemHost{
-		Host: true,
-	})
-}
-
-func (a *Agent) fakeWXPay(totalFee int) {
-	a.writeMsg(&msg.C2S_FakeWXPay{
-		TotalFee: totalFee,
-	})
+func (a *Agent) isSign() bool {
+	return a.currMatchid != ""
 }
