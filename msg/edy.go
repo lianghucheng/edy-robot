@@ -151,3 +151,7 @@ type C2S_Heartbeat struct {
 
 type C2S_EnterRoom struct{}
 
+//告诉玩家参加的赛事即将开赛
+type S2C_MatchPrepare struct {
+	MatchId string
+}

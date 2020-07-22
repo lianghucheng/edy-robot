@@ -22,7 +22,7 @@ func (a *Agent) wechatLogin() {
 	a.playerData.Nickname = nicknames[count]
 	a.writeMsg(&msg.C2S_UsrnPwdLogin{
 		Username:    unionids[count],
-		Password:   "123456",
+		Password:   "123456789",
 	})
 	count++
 }
@@ -80,12 +80,24 @@ func (a *Agent) doDouble() {
 	})
 }
 
-func (a *Agent) doDiscard() {
-	if len(a.playerData.Hint) > 1 {
+func (a *Agent) doDiscard(actionDiscardType int) {
+	if len(a.playerData.Hint) >= 1 {
 		Delay(func() {
 			a.writeMsg(&msg.C2S_LandlordDiscard{
 				Cards:a.playerData.Hint[rand.Intn(len(a.playerData.Hint))],
 			})
+		})
+	} else {
+		if actionDiscardType == 1 {
+			Delay(func() {
+				a.writeMsg(&msg.C2S_LandlordDiscard{
+					Cards:[]int{a.playerData.hands[rand.Intn(len(a.playerData.hands))]},
+				})
+			})
+			return
+		}
+		Delay(func() {
+			a.writeMsg(&msg.C2S_LandlordDiscard{})
 		})
 	}
 }

@@ -4,7 +4,6 @@ import (
 	"edy-robot/msg"
 	"edy-robot/poker"
 	"encoding/json"
-	"fmt"
 	"github.com/name5566/leaf/log"
 	"github.com/name5566/leaf/timer"
 	"math/rand"
@@ -63,29 +62,28 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 			}
 		}
 	} else if res, ok := jsonMap["S2C_EnterRoom"]; ok {
-		log.Debug("准备开始比赛")
+		log.Debug("分桌进入房间")
 		msgEnterRoom := new(msg.S2C_EnterRoom)
 		if parseObject(res, msgEnterRoom) {
 			if msgEnterRoom.Error == 0 {
 				a.playerData.Position = msgEnterRoom.Position
 			}
 		}
-		a.playerData.isPlay = true
-		a.currMatchid = ""
 	} else if res, ok := jsonMap["S2C_ActionLandlordBid"]; ok {
 		m := new(msg.S2C_ActionLandlordBid)
 		if parseObject(res, m) {
 			if a.isMe(m.Position) {
 				log.Debug("叫分")
-				a.doBid(m.Score)
+				Delay(func() {
+					a.doBid(m.Score)
+				})
 			}
 		}
 	} else if _, ok := jsonMap["S2C_ActionLandlordDouble"]; ok {
 		log.Debug("加倍")
-		a.doDouble()
+		Delay(a.doDouble)
 	} else if _, ok := jsonMap["S2C_LandlordRoundFinalResult"]; ok {
 		log.Debug("打完了一局")
-		fmt.Println("打完了一局")
 	} else if _, ok := jsonMap["S2C_MineRoundRank"]; ok {
 		log.Debug("比赛结束")
 		a.playerData.isPlay = false
@@ -99,10 +97,18 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 		if parseObject(res, m) {
 			if a.isMe(m.Position) {
 				log.Debug("出牌动作")
+				log.Debug("************出牌提示：%v", poker.ToMeldsString(m.Hint))
+				log.Debug("************手牌：%v", poker.ToCardsString(a.playerData.hands))
 				a.playerData.Hint = m.Hint
-				a.doDiscard()
+				Delay(func() {
+					a.doDiscard(m.ActionDiscardType)
+				})
 			}
 		}
+	} else if _, ok := jsonMap["S2C_MatchPrepare"]; ok {
+		log.Debug("比赛准备开始")
+		a.playerData.isPlay = true
+		a.currMatchid = ""
 	}
 }
 
