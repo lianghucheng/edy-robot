@@ -1,6 +1,8 @@
 package robot
 
 import (
+	"edy-robot/cluster"
+	"edy-robot/db"
 	"edy-robot/msg"
 	"edy-robot/poker"
 	"encoding/json"
@@ -57,6 +59,12 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 				if a.signOutTimer != nil {
 					a.signOutTimer.Stop()
 					a.signOutTimer = nil
+					cluster.Mux.Lock()
+					if cluster.RobotUseNum[m.RaceID] > 0 {
+						cluster.RobotUseNum[m.RaceID]--
+						log.Debug("RobotUseNum减少 %v", cluster.RobotUseNum[m.RaceID])
+					}
+					cluster.Mux.Unlock()
 				}
 				Delay(a.signIn)
 			}
@@ -86,8 +94,26 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 		log.Debug("打完了一局")
 	} else if _, ok := jsonMap["S2C_MineRoundRank"]; ok {
 		log.Debug("比赛结束")
+		matchid := a.robotMem
+		cluster.Mux.Lock()
+		if _, ok := cluster.RobotJoinNum[matchid]; ok {
+			log.Debug("RobotJoinNum减少前%v    %v", cluster.RobotJoinNum[matchid], matchid)
+			cluster.RobotJoinNum[matchid]--
+			log.Debug("RobotJoinNum减少后%v    %v", cluster.RobotJoinNum[matchid], matchid)
+			db.SaveRobotJoinNum(a.robotMem, cluster.RobotJoinNum[a.currMatchid])
+		} else {
+			log.Debug("异常")
+		}
+		if _, ok := cluster.RobotUseNum[matchid]; ok {
+			cluster.RobotUseNum[matchid]--
+			log.Debug("RobotUseNum减少 %v", cluster.RobotUseNum[matchid])
+		} else {
+			log.Debug("异常")
+		}
+		cluster.Mux.Unlock()
+
 		a.playerData.isPlay = false
-		time.AfterFunc(10 * time.Second, func() {
+		time.AfterFunc(10*time.Second, func() {
 			if a != nil {
 				a.signIn()
 			}
@@ -106,8 +132,15 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 			}
 		}
 	} else if _, ok := jsonMap["S2C_MatchPrepare"]; ok {
+		cluster.Mux.Lock()
 		log.Debug("比赛准备开始")
 		a.playerData.isPlay = true
+		log.Debug("RobotJoinNum增加前%v,当前matchid：%v", cluster.RobotJoinNum[a.robotMem], a.robotMem)
+
+		cluster.RobotJoinNum[a.robotMem]++
+		log.Debug("RobotJoinNum增加后%v,当前matchid：%v", cluster.RobotJoinNum[a.robotMem], a.robotMem)
+		db.SaveRobotJoinNum(a.robotMem, cluster.RobotJoinNum[a.currMatchid])
+		cluster.Mux.Unlock()
 		a.currMatchid = ""
 	}
 }

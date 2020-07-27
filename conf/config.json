@@ -1,0 +1,7 @@
+{
+  "DBName": "ddz-match",
+  "DBUrl": "mongodb://localhost",
+  "DBConnNum": 1,
+  "DBConfColl": "config",
+  "Model": "dev"
+}

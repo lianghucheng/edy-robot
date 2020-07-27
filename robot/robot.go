@@ -17,8 +17,8 @@ import (
 
 var (
 	// addr = "ws://czddz.shenzhouxing.com:3658"
-	// addr        = "ws://139.199.180.94:3658"
 	addr        = "ws://192.168.1.8:5658"
+	//addr        = "ws://123.207.12.67:6658"
 	clients     []*net.Client
 	unionids    []string
 	nicknames   []string
@@ -27,7 +27,7 @@ var (
 	count       = 0
 	mu          sync.Mutex
 
-	robotNumber = 2 // 机器人数量
+	robotNumber = 100 // 机器人数量
 
 	dispatcher *timer.Dispatcher
 )
@@ -81,11 +81,12 @@ func Destroy() {
 }
 
 type Agent struct {
-	conn       *net.MyConn
-	playerData *PlayerData
-	matchids   []string
-	currMatchid 	string
-	signOutTimer  *time.Timer
+	conn         *net.MyConn
+	playerData   *PlayerData
+	matchids     []string
+	currMatchid  string
+	signOutTimer *time.Timer
+	robotMem     string
 }
 
 func newAgent(conn *net.MyConn) network.Agent {

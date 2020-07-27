@@ -34,8 +34,8 @@ type PlayerData struct {
 	Role          int
 	hands         []int
 	exitRoomTimer *time.Timer
-	isPlay 	 	  bool
-	Hint 		  [][]int
+	isPlay        bool
+	Hint          [][]int
 }
 
 func (playerData *PlayerData) getRandRedPacketMatchingRoom() {
