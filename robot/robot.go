@@ -17,8 +17,8 @@ import (
 
 var (
 	// addr = "ws://czddz.shenzhouxing.com:3658"
-	addr        = "ws://192.168.1.8:5658"
-	//addr        = "ws://123.207.12.67:6658"
+	//addr        = "ws://192.168.1.8:5658"
+	addr        = "ws://123.207.12.67:6658"
 	clients     []*net.Client
 	unionids    []string
 	nicknames   []string
