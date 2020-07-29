@@ -43,7 +43,7 @@ func (a *Agent) signIn() {
 			return
 		}
 		matchid := a.matchids[rand.Intn(len(a.matchids))]
-		data, ok := conf.GetCfgMatchidRobot()[matchid]
+		data, ok := conf.GetConfMatchidRobot()[matchid]
 		if !ok {
 			log.Debug("该赛事尚未配置   %v", matchid)
 			time.AfterFunc(10*time.Second, a.signIn)
@@ -87,7 +87,7 @@ func (a *Agent) signOut() {
 	if a.isSign() && !a.playerData.isPlay {
 		log.Debug("退签")
 		matchid := a.robotMem
-		_, ok := conf.GetCfgMatchidRobot()[matchid]
+		_, ok := conf.GetConfMatchidRobot()[matchid]
 		if !ok {
 			log.Debug("异常情况")
 			return

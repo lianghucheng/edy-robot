@@ -2,9 +2,9 @@ package robot
 
 import (
 	"edy-robot/common"
+	"edy-robot/conf"
 	"edy-robot/net"
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/name5566/leaf/log"
 	"github.com/name5566/leaf/network"
@@ -17,8 +17,8 @@ import (
 
 var (
 	// addr = "ws://czddz.shenzhouxing.com:3658"
-	//addr        = "ws://192.168.1.8:5658"
-	addr        = "ws://123.207.12.67:6658"
+	addr = conf.GetBaseConf().GameWsAddr
+	//addr        = "ws://123.207.12.67:6658"
 	clients     []*net.Client
 	unionids    []string
 	nicknames   []string
@@ -27,21 +27,20 @@ var (
 	count       = 0
 	mu          sync.Mutex
 
-	robotNumber = 100 // 机器人数量
+	robotNumber = conf.GetBaseConf().RobotNum // 机器人数量
 
 	dispatcher *timer.Dispatcher
 )
 
 func init() {
-	fmt.Println("test init test init. ")
 	rand.Seed(time.Now().UnixNano())
 
 	names, ips := make([]string, 0), make([]string, 0)
 	var err error
-	names, err = common.ReadFile("conf/robot_nickname.txt")
+	names, err = common.ReadFile(conf.GetBaseConf().NicknamePath)
 	names = common.Shuffle2(names)
 
-	ips, _ = common.ReadFile("conf/robot_ip.txt")
+	ips, _ = common.ReadFile(conf.GetBaseConf().IpPath)
 	ips = common.Shuffle2(ips)
 	if err == nil {
 		nicknames = append(nicknames, names[:robotNumber]...)

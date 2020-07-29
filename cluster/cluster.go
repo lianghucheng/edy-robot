@@ -37,18 +37,18 @@ func handleConfNumLimit(w http.ResponseWriter, r *http.Request) {
 	log.Debug("接收handleConfNumLimit   %v  %v", total, matchid)
 	Mux.Lock()
 	defer Mux.Unlock()
-	if _, ok := conf.GetCfgMatchidRobot()[matchid]; ok {
-		log.Debug("更新赛事机器人zong数量配置，配置前数量：%v", conf.GetCfgMatchidRobot()[matchid].Total)
-		conf.GetCfgMatchidRobot()[matchid].Total = robotTotal
+	if _, ok := conf.GetConfMatchidRobot()[matchid]; ok {
+		log.Debug("更新赛事机器人zong数量配置，配置前数量：%v", conf.GetConfMatchidRobot()[matchid].Total)
+		conf.GetConfMatchidRobot()[matchid].Total = robotTotal
 	} else {
 		log.Debug("更新赛事机器人zong数量配置，配置前没有数量")
-		conf.GetCfgMatchidRobot()[matchid] = &conf.CfgMatchidRobot{
+		conf.GetConfMatchidRobot()[matchid] = &conf.ConfMatchidRobot{
 			Total: robotTotal,
 		}
 	}
-	log.Debug("更新赛事机器人zong数量配置，配置后数量：%v    matchid:%v", conf.GetCfgMatchidRobot()[matchid].Total, matchid)
+	log.Debug("更新赛事机器人zong数量配置，配置后数量：%v    matchid:%v", conf.GetConfMatchidRobot()[matchid].Total, matchid)
 	//todo: Save DB
-	w.Write([]byte(fmt.Sprintf("更新赛事机器人zong数量配置，配置后数量：%v", conf.GetCfgMatchidRobot()[matchid].Total)))
+	w.Write([]byte(fmt.Sprintf("更新赛事机器人zong数量配置，配置后数量：%v", conf.GetConfMatchidRobot()[matchid].Total)))
 }
 
 func handleRobotStatus(w http.ResponseWriter, r *http.Request) {
@@ -57,20 +57,20 @@ func handleRobotStatus(w http.ResponseWriter, r *http.Request) {
 	robotStatus, _ := strconv.Atoi(status)
 	Mux.Lock()
 	defer Mux.Unlock()
-	if _, ok := conf.GetCfgMatchidRobot()[matchid]; ok {
-		log.Debug("更新机器人状态配置，配置前状态：%v", conf.GetCfgMatchidRobot()[matchid].Status)
-		conf.GetCfgMatchidRobot()[matchid].Status = robotStatus
+	if _, ok := conf.GetConfMatchidRobot()[matchid]; ok {
+		log.Debug("更新机器人状态配置，配置前状态：%v", conf.GetConfMatchidRobot()[matchid].Status)
+		conf.GetConfMatchidRobot()[matchid].Status = robotStatus
 	} else {
 		log.Debug("更新机器人状态配置，配置前没有状态")
-		conf.GetCfgMatchidRobot()[matchid] = &conf.CfgMatchidRobot{
+		conf.GetConfMatchidRobot()[matchid] = &conf.ConfMatchidRobot{
 			Status: robotStatus,
 		}
 	}
-	log.Debug("更新机器人状态配置，配置前状态：%v", conf.GetCfgMatchidRobot()[matchid].Status)
+	log.Debug("更新机器人状态配置，配置前状态：%v", conf.GetConfMatchidRobot()[matchid].Status)
 	//todo: Save DB
-	w.Write([]byte(fmt.Sprintf("更新机器人状态配置，配置前状态：%v", conf.GetCfgMatchidRobot()[matchid].Status)))
+	w.Write([]byte(fmt.Sprintf("更新机器人状态配置，配置前状态：%v", conf.GetConfMatchidRobot()[matchid].Status)))
 }
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(fmt.Sprintf(`当前系统并发状态,\n机器人使用个数:%v\n机器人参赛个数：%v，赛事相关机器人情况:%+v`, RobotUseNum, RobotJoinNum,conf.GetCfgMatchidRobot)))
+	w.Write([]byte(fmt.Sprintf(`当前系统并发状态,\n机器人使用个数:%v\n机器人参赛个数：%v，赛事相关机器人情况:%+v`, RobotUseNum, RobotJoinNum, conf.GetConfMatchidRobot)))
 }

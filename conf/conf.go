@@ -1,21 +1,60 @@
 package conf
 
-var cfg *RobotConf
+import (
+	"encoding/json"
+	"github.com/name5566/leaf/log"
+	"io/ioutil"
+)
 
-func init() {
-	cfg = new(RobotConf)
-	cfg.CfgMatchidRobots = make(map[string]*CfgMatchidRobot)
+var conf *RobotConf
+var baseConf *BaseConf
+
+type BaseConf struct {
+	DBName       string
+	DBAddr       string
+	DBConnNum    int
+	DBConfColl   string
+	Model        string
+	RobotNum     int
+	GameWsAddr   string
+	IpPath       string
+	NicknamePath string
 }
 
 type RobotConf struct {
-	CfgMatchidRobots map[string]*CfgMatchidRobot
+	ConfMatchidRobots map[string]*ConfMatchidRobot
 }
 
-type CfgMatchidRobot struct {
+type ConfMatchidRobot struct {
 	Total  int
 	Status int
 }
 
-func GetCfgMatchidRobot() map[string]*CfgMatchidRobot {
-	return cfg.CfgMatchidRobots
+func init() {
+	conf = new(RobotConf)
+	conf.ConfMatchidRobots = make(map[string]*ConfMatchidRobot) //todo:不初始化会不会报错
+	baseConf = new(BaseConf)
+	ReadBaseConf()
+}
+
+func GetConfMatchidRobot() map[string]*ConfMatchidRobot {
+	return conf.ConfMatchidRobots
+}
+
+func ReadBaseConf() {
+	b, err := ioutil.ReadFile("conf/base.json")
+	if err != nil {
+		log.Fatal(err.Error())
+		return
+	}
+	err = json.Unmarshal(b, baseConf)
+	if err != nil {
+		log.Fatal(err.Error())
+		return
+	}
+	//util.PrintObject(baseConf)
+}
+
+func GetBaseConf() *BaseConf {
+	return baseConf
 }
