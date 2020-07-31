@@ -38,7 +38,7 @@ func init() {
 	names, ips := make([]string, 0), make([]string, 0)
 	var err error
 	names, err = common.ReadFile(conf.GetBaseConf().NicknamePath)
-	names = common.Shuffle2(names)
+	//names = common.Shuffle2(names)
 
 	ips, _ = common.ReadFile(conf.GetBaseConf().IpPath)
 	ips = common.Shuffle2(ips)

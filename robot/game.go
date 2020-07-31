@@ -55,12 +55,16 @@ func (a *Agent) signIn() {
 			return
 		}
 		cluster.Mux.Lock()
+		flag := 0
 		if val, ok := cluster.RobotUseNum[matchid]; ok && val > data.Total {
 			log.Debug("该赛事使用的机器人已满，数量是：%v", data.Total)
 			time.AfterFunc(10*time.Second, a.signIn)
-			return
+			flag = 1
 		}
 		cluster.Mux.Unlock()
+		if flag == 1 {
+			return
+		}
 		if data.Status == 1 {
 			log.Debug("该赛事的机器人处于关闭状态，当前状态是：%v", data.Status)
 			time.AfterFunc(10*time.Second, a.signIn)
