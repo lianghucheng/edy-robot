@@ -1,4 +1,4 @@
-package poker
+package ai
 
 import "edy-robot/common"
 

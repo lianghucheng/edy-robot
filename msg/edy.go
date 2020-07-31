@@ -1,6 +1,6 @@
 package msg
 
-import "edy-robot/poker"
+import "edy-robot/ai"
 
 type C2S_Apply struct {
 	MatchId string //赛事ID
@@ -123,7 +123,7 @@ type C2S_LandlordDouble struct {
 }
 
 type S2C_LandlordRoundFinalResult struct {
-	RoundResults []poker.LandlordPlayerRoundResult
+	RoundResults []ai.LandlordPlayerRoundResult
 	Countdown    int // 下一局开始时间
 }
 

@@ -1,4 +1,4 @@
-package poker
+package ai
 
 import (
 	"edy-robot/common"
@@ -78,6 +78,8 @@ func (analyzer *LandlordAnalyzer) Analyze(cards []int) {
 	}
 	analyzer.analyzeSoloChain(exclude(analyzer.cards))
 	analyzer.analyzeUnrelated()
+
+	analyzer.Print()
 }
 
 func (analyzer *LandlordAnalyzer) analyzeKingBomb() {

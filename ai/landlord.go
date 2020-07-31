@@ -1,7 +1,8 @@
-package poker
+package ai
 
 import (
 	"edy-robot/common"
+	"fmt"
 	"sort"
 )
 
@@ -415,6 +416,7 @@ func GetLandlordSoloChains(cards []int) [][]int {
 
 func GetDiscardHint(preDiscards []int, hands []int) [][]int {
 	preDiscardsType := GetLandlordCardsType(preDiscards)
+	fmt.Println(preDiscardsType)
 	switch preDiscardsType {
 	case Solo: // 单张
 		return GetGreaterThanSolo(CardValue(preDiscards[0]), hands)

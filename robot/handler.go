@@ -4,7 +4,7 @@ import (
 	"edy-robot/cluster"
 	"edy-robot/db"
 	"edy-robot/msg"
-	"edy-robot/poker"
+	"edy-robot/ai"
 	"encoding/json"
 	"github.com/name5566/leaf/log"
 	"github.com/name5566/leaf/timer"
@@ -36,7 +36,7 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 		if parseObject(res, m) {
 			if a.isMe(m.Position) {
 				a.playerData.hands = m.Hands
-				log.Debug("hands: %v", poker.ToCardsString(a.playerData.hands))
+				log.Debug("hands: %v", ai.ToCardsString(a.playerData.hands))
 			}
 		}
 	} else if res, ok := jsonMap["S2C_RaceInfo"]; ok {
@@ -123,8 +123,8 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 		if parseObject(res, m) {
 			if a.isMe(m.Position) {
 				log.Debug("出牌动作")
-				log.Debug("************出牌提示：%v", poker.ToMeldsString(m.Hint))
-				log.Debug("************手牌：%v", poker.ToCardsString(a.playerData.hands))
+				log.Debug("************出牌提示：%v", ai.ToMeldsString(m.Hint))
+				log.Debug("************手牌：%v", ai.ToCardsString(a.playerData.hands))
 				a.playerData.Hint = m.Hint
 				Delay(func() {
 					a.doDiscard(m.ActionDiscardType)
