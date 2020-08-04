@@ -4,8 +4,8 @@
   "DBConnNum": 100,
   "DBConfColl": "config",
   "Model": "dev",
-  "RobotNum": 1,
-  "GameWsAddr": "ws://localhost:5658",
+  "RobotNum": 100,
+  "GameWsAddr": "ws://192.168.1.8:5658",
   "IpPath": "conf/robot_ip.txt",
   "NicknamePath": "conf/robot_nickname.txt"
 }
