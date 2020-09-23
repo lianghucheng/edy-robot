@@ -1,10 +1,10 @@
 package robot
 
 import (
+	"edy-robot/ai"
 	"edy-robot/cluster"
 	"edy-robot/db"
 	"edy-robot/msg"
-	"edy-robot/ai"
 	"encoding/json"
 	"github.com/name5566/leaf/log"
 	"github.com/name5566/leaf/timer"
@@ -19,18 +19,24 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 		a.playerData.AccountID = int(res["AccountID"].(float64))
 		log.Debug("登录成功！%v", a.playerData.AccountID)
 		a.playerData.Role = int(res["Role"].(float64))
-		if a.playerData.Role != roleRobot {
-			log.Debug("accID: %v 登录初始化，因为不是机器人。", a.playerData.AccountID)
-			//todo: Set character to robot.
+		//todo: 最终开发好的ai，由于要暂时测试某些功能先注释掉
+		//if a.playerData.Role != roleRobot {
+		//	log.Debug("accID: %v 登录初始化，因为不是机器人。", a.playerData.AccountID)
+		//	//todo: Set character to robot.
+		//}
+		//if len(a.matchids) == 0 {
+		//	a.writeMsg(&msg.C2S_RaceInfo{})
+		//	Delay(func() {
+		//		if a != nil {
+		//			a.signIn()
+		//		}
+		//	})
+		//}
+
+		log.Debug("*************开始暂时测试") //todo: 通过
+		type C2S_Notice struct {
 		}
-		if len(a.matchids) == 0 {
-			a.writeMsg(&msg.C2S_RaceInfo{})
-			Delay(func() {
-				if a != nil {
-					a.signIn()
-				}
-			})
-		}
+		//a.writeMsg(&C2S_Notice{})
 	} else if res, ok := jsonMap["S2C_UpdatePokerHands"].(map[string]interface{}); ok {
 		m := new(msg.S2C_UpdatePokerHands)
 		if parseObject(res, m) {
@@ -142,6 +148,9 @@ func (a *Agent) handleMsg(jsonMap map[string]interface{}) {
 		db.SaveRobotJoinNum(a.robotMem, cluster.RobotJoinNum[a.currMatchid])
 		cluster.Mux.Unlock()
 		a.currMatchid = ""
+	} else {
+		log.Debug("暂时测试接收到的返回数据：")
+		log.Debug("%v", jsonMap)
 	}
 }
 

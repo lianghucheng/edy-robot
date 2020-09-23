@@ -19,6 +19,6 @@ func PrintObject(data interface{}) {
 		return
 	}
 	for k, v := range m {
-		fmt.Println(k,": ",v)
+		fmt.Println(k, ": ", v)
 	}
 }

@@ -23,7 +23,8 @@ func (a *Agent) wechatLogin() {
 	a.playerData.Unionid = unionids[count]
 	a.playerData.Nickname = nicknames[count]
 	a.writeMsg(&msg.C2S_UsrnPwdLogin{
-		Username: unionids[count],
+		//Username: unionids[count],
+		Username: "test77",
 		Password: "123456789",
 	})
 	count++

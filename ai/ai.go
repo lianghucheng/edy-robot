@@ -1,17 +1,17 @@
 package ai
 
 var MinSolo = []int{0}
-var MinPair = []int{1,0}
+var MinPair = []int{1, 0}
 var MinTrip = []int{2, 1, 0}
-var MinTripSingle = []int{8,2,1,0}
-var MinTripDouble = []int{9,8,2,1,0}
+var MinTripSingle = []int{8, 2, 1, 0}
+var MinTripDouble = []int{9, 8, 2, 1, 0}
 var MinBomb = []int{3, 2, 1, 0}
-var MinConsist = []int{16,12,8,4,0}
+var MinConsist = []int{16, 12, 8, 4, 0}
 var MinConsists [][]int
-var MinconPair = []int{9,8,5,4,1,0}
-var MinPlane = []int{6,5,4,2,1,0}
-var MinPlaneSingle = []int{13,8,6,5,4,2,1,0}
-var MinPlaneDouble = []int{18,17,9,8,6,5,4,2,1,0}
+var MinconPair = []int{9, 8, 5, 4, 1, 0}
+var MinPlane = []int{6, 5, 4, 2, 1, 0}
+var MinPlaneSingle = []int{13, 8, 6, 5, 4, 2, 1, 0}
+var MinPlaneDouble = []int{18, 17, 9, 8, 6, 5, 4, 2, 1, 0}
 
 var MinCardType = [][]int{
 	MinSolo,
@@ -28,7 +28,7 @@ var MinCardType = [][]int{
 
 func init() {
 	MinConsists = append(MinConsists, MinConsist)
-	for i:=0;i<12;i++{
+	for i := 0; i < 12; i++ {
 		first := []int{MinConsists[i][0] + 4}
 		MinConsists = append(MinConsists, append(first, MinConsists[i]...))
 	}
@@ -37,9 +37,9 @@ func init() {
 }
 
 func GetDiscard(hands []int) []int {
-	for i:=len(MinConsists)-1;i>=0;i-- {
+	for i := len(MinConsists) - 1; i >= 0; i-- {
 		if consist := GetDiscardHint(MinConsists[i], hands); len(consist) != 0 {
-			for j := len(consist) - 1;j>=0;j-- {
+			for j := len(consist) - 1; j >= 0; j-- {
 				if consist[j][0] < 44 {
 					return consist[j]
 				}
